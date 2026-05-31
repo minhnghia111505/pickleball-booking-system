@@ -21,6 +21,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String ROLE_PREFIX = "ROLE_";
 
     private final JwtService jwtService;
 
@@ -42,17 +43,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(BEARER_PREFIX.length());
-        String subject = jwtService.extractSubject(token);
 
-        if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null
-                && jwtService.isTokenValid(token, subject)) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    subject,
-                    null,
-                    List.of(new SimpleGrantedAuthority("ROLE_USER"))
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            String subject = jwtService.extractSubject(token);
+
+            if (subject != null
+                    && SecurityContextHolder.getContext().getAuthentication() == null
+                    && jwtService.isAccessTokenValid(token, subject)) {
+                String role = jwtService.extractRole(token);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        subject,
+                        null,
+                        List.of(new SimpleGrantedAuthority(ROLE_PREFIX + role))
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception ignored) {
+            // Invalid token — continue without authentication; SecurityConfig returns 401 if required
         }
 
         filterChain.doFilter(request, response);

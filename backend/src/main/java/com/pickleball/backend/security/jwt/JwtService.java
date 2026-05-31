@@ -9,11 +9,17 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
+
+    public static final String CLAIM_ROLE = "role";
+    public static final String CLAIM_TOKEN_TYPE = "type";
+    public static final String TOKEN_TYPE_ACCESS = "access";
+    public static final String TOKEN_TYPE_REFRESH = "refresh";
 
     private final JwtProperties jwtProperties;
     private final SecretKey signingKey;
@@ -33,21 +39,54 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessToken(String subject) {
-        return generateAccessToken(subject, Map.of());
+    public String generateAccessToken(String subject, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_ROLE, role);
+        claims.put(CLAIM_TOKEN_TYPE, TOKEN_TYPE_ACCESS);
+        return buildToken(claims, subject, jwtProperties.accessTokenExpiration());
     }
 
-    public String generateAccessToken(String subject, Map<String, Object> extraClaims) {
-        return buildToken(extraClaims, subject, jwtProperties.accessTokenExpiration());
+    public String generateRefreshToken(String subject, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_ROLE, role);
+        claims.put(CLAIM_TOKEN_TYPE, TOKEN_TYPE_REFRESH);
+        return buildToken(claims, subject, jwtProperties.refreshTokenExpiration());
     }
 
     public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, String expectedSubject) {
-        String subject = extractSubject(token);
-        return subject.equals(expectedSubject) && !isTokenExpired(token);
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_ROLE, String.class));
+    }
+
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get(CLAIM_TOKEN_TYPE, String.class));
+    }
+
+    public boolean isAccessTokenValid(String token, String expectedSubject) {
+        return isTokenValid(token, expectedSubject, TOKEN_TYPE_ACCESS);
+    }
+
+    public boolean isRefreshTokenValid(String token, String expectedSubject) {
+        return isTokenValid(token, expectedSubject, TOKEN_TYPE_REFRESH);
+    }
+
+    public long getAccessTokenExpirationSeconds() {
+        return jwtProperties.accessTokenExpiration() / 1000;
+    }
+
+    private boolean isTokenValid(String token, String expectedSubject, String expectedType) {
+        try {
+            String subject = extractSubject(token);
+            String tokenType = extractTokenType(token);
+            return subject.equals(expectedSubject)
+                    && expectedType.equals(tokenType)
+                    && !isTokenExpired(token);
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
