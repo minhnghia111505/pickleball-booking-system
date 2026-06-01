@@ -28,6 +28,10 @@ public class User extends BaseEntity {
 
     private String phone;
 
+    /** URL or storage path; set later via dedicated avatar upload endpoint. */
+    @Column(name = "avatar_url", length = 512)
+    private String avatarUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;

@@ -31,6 +31,15 @@ app:
     allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,PATCH,DELETE,OPTIONS}
     allowed-headers: ${CORS_ALLOWED_HEADERS:*}
     allow-credentials: true
+  pagination:
+    default-page-size: ${PAGINATION_DEFAULT_SIZE:10}
+    max-page-size: ${PAGINATION_MAX_SIZE:50}
+  booking:
+    min-duration-minutes: ${BOOKING_MIN_DURATION_MINUTES:60}
+    max-advance-days: ${BOOKING_MAX_ADVANCE_DAYS:30}
+    opening-time: ${BOOKING_OPENING_TIME:06:00}
+    closing-time: ${BOOKING_CLOSING_TIME:22:00}
+    require-payment-before-confirm: ${BOOKING_REQUIRE_PAYMENT:false}
 
 logging:
   level:
