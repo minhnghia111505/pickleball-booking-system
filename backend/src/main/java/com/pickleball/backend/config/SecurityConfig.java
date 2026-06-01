@@ -1,6 +1,7 @@
 package com.pickleball.backend.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pickleball.backend.config.openapi.OpenApiConstants;
 import com.pickleball.backend.response.ApiResponse;
 import com.pickleball.backend.security.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +26,10 @@ import java.nio.charset.StandardCharsets;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/auth/**"
-    };
+    private static final String[] PUBLIC_ENDPOINTS = mergePaths(
+            new String[]{"/auth/**"},
+            OpenApiConstants.SWAGGER_WHITELIST
+    );
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
@@ -70,5 +72,12 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    private static String[] mergePaths(String[] first, String[] second) {
+        String[] merged = new String[first.length + second.length];
+        System.arraycopy(first, 0, merged, 0, first.length);
+        System.arraycopy(second, 0, merged, first.length, second.length);
+        return merged;
     }
 }

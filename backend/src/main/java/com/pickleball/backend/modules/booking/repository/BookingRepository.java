@@ -2,10 +2,12 @@ package com.pickleball.backend.modules.booking.repository;
 
 import com.pickleball.backend.modules.booking.entity.Booking;
 import com.pickleball.backend.modules.booking.entity.BookingStatus;
+import com.pickleball.backend.modules.schedule.repository.projection.ScheduleBookingProjection;
+import com.pickleball.backend.persistence.EntityGraphNames;
 import jakarta.persistence.LockModeType;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +21,9 @@ import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
+    /**
+     * Pessimistic lock for overlap checks; only booking columns are used — no entity graph.
+     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
             SELECT b FROM Booking b
@@ -49,20 +54,56 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("activeStatuses") Collection<BookingStatus> activeStatuses
     );
 
-    @EntityGraph(attributePaths = {"user", "court"})
+    @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
     Page<Booking> findByUser_IdOrderByBookingDateDescStartTimeDesc(Long userId, Pageable pageable);
 
+    /**
+     * Scalar fields only — safe without fetch join (see {@code BookingMapper#toScheduleSlot}).
+     */
     List<Booking> findByCourt_IdAndBookingDateAndBookingStatusInOrderByStartTimeAsc(
             Long courtId,
             LocalDate bookingDate,
             Collection<BookingStatus> statuses
     );
 
-    @Query("""
-            SELECT b FROM Booking b
-            JOIN FETCH b.user
-            JOIN FETCH b.court
-            WHERE b.id = :id
-            """)
+    @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
+    @Query("SELECT b FROM Booking b WHERE b.id = :id")
     Optional<Booking> findByIdWithUserAndCourt(@Param("id") Long id);
+
+    @Query("""
+            SELECT b.id AS id,
+                   b.bookingDate AS bookingDate,
+                   b.startTime AS startTime,
+                   b.endTime AS endTime,
+                   b.bookingStatus AS bookingStatus
+            FROM Booking b
+            WHERE b.court.id = :courtId
+              AND b.bookingDate = :bookingDate
+              AND b.bookingStatus IN :statuses
+            ORDER BY b.startTime ASC
+            """)
+    List<ScheduleBookingProjection> findScheduleProjectionsByCourtAndDate(
+            @Param("courtId") Long courtId,
+            @Param("bookingDate") LocalDate bookingDate,
+            @Param("statuses") Collection<BookingStatus> statuses
+    );
+
+    @Query("""
+            SELECT b.id AS id,
+                   b.bookingDate AS bookingDate,
+                   b.startTime AS startTime,
+                   b.endTime AS endTime,
+                   b.bookingStatus AS bookingStatus
+            FROM Booking b
+            WHERE b.court.id = :courtId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+              AND b.bookingStatus IN :statuses
+            ORDER BY b.bookingDate ASC, b.startTime ASC
+            """)
+    List<ScheduleBookingProjection> findScheduleProjectionsByCourtAndDateRange(
+            @Param("courtId") Long courtId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuses") Collection<BookingStatus> statuses
+    );
 }

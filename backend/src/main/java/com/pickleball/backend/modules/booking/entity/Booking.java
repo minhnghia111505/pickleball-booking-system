@@ -3,13 +3,17 @@ package com.pickleball.backend.modules.booking.entity;
 import com.pickleball.backend.entity.BaseEntity;
 import com.pickleball.backend.modules.court.entity.Court;
 import com.pickleball.backend.modules.user.entity.User;
+import com.pickleball.backend.persistence.EntityGraphNames;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedAttributeNode;
+import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +24,30 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "bookings")
+@Table(
+        name = "bookings",
+        indexes = {
+                @Index(
+                        name = "idx_bookings_court_date_status",
+                        columnList = "court_id, booking_date, booking_status"
+                ),
+                @Index(
+                        name = "idx_bookings_user_date",
+                        columnList = "user_id, booking_date"
+                ),
+                @Index(
+                        name = "idx_bookings_date_status",
+                        columnList = "booking_date, booking_status"
+                )
+        }
+)
+@NamedEntityGraph(
+        name = EntityGraphNames.BOOKING_WITH_DETAILS,
+        attributeNodes = {
+                @NamedAttributeNode("user"),
+                @NamedAttributeNode("court")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -54,7 +81,6 @@ public class Booking extends BaseEntity {
     @Column(name = "payment_status", length = 20)
     private PaymentStatus paymentStatus;
 
-    /** External payment reference (gateway transaction id). */
     @Column(name = "payment_reference", length = 255)
     private String paymentReference;
 }

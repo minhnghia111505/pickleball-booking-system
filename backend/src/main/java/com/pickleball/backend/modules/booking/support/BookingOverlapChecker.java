@@ -4,6 +4,8 @@ import com.pickleball.backend.exception.BusinessException;
 import com.pickleball.backend.modules.booking.entity.Booking;
 import com.pickleball.backend.modules.booking.entity.BookingStatus;
 import com.pickleball.backend.modules.booking.repository.BookingRepository;
+import com.pickleball.backend.modules.schedule.repository.ScheduleLockRepository;
+import com.pickleball.backend.util.TimeIntervalUtils;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -20,9 +22,14 @@ import java.util.List;
 public class BookingOverlapChecker {
 
     private final BookingRepository bookingRepository;
+    private final ScheduleLockRepository scheduleLockRepository;
 
-    public BookingOverlapChecker(BookingRepository bookingRepository) {
+    public BookingOverlapChecker(
+            BookingRepository bookingRepository,
+            ScheduleLockRepository scheduleLockRepository
+    ) {
         this.bookingRepository = bookingRepository;
+        this.scheduleLockRepository = scheduleLockRepository;
     }
 
     public void assertNoOverlap(
@@ -57,9 +64,25 @@ public class BookingOverlapChecker {
         if (overlapping) {
             throw new BusinessException("This time slot is already booked for the selected court");
         }
+
+        assertNoMaintenanceLockOverlap(courtId, bookingDate, startTime, endTime);
+    }
+
+    public void assertNoMaintenanceLockOverlap(
+            Long courtId,
+            LocalDate bookingDate,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+        boolean locked = scheduleLockRepository.existsOverlappingLock(
+                courtId, bookingDate, startTime, endTime
+        );
+        if (locked) {
+            throw new BusinessException("This time slot is locked for maintenance");
+        }
     }
 
     public boolean overlaps(LocalTime startA, LocalTime endA, LocalTime startB, LocalTime endB) {
-        return startA.isBefore(endB) && startB.isBefore(endA);
+        return TimeIntervalUtils.overlaps(startA, endA, startB, endB);
     }
 }

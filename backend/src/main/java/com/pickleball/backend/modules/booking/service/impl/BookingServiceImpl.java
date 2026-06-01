@@ -102,7 +102,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking saved = bookingRepository.save(booking);
-        return bookingMapper.toResponse(saved);
+        return bookingMapper.toResponse(saved, user, court);
     }
 
     @Override

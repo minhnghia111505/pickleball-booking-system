@@ -7,7 +7,7 @@ Hệ thống quản lý và đặt sân Pickleball — fullstack project (Modula
 ```
 pickleball-booking-system/
 ├── backend/          # Spring Boot 3 API
-├── frontend/         # Frontend (sẽ bổ sung)
+├── frontend/         # Next.js App Router
 ├── docs/             # Tài liệu
 ├── database/         # SQL scripts
 └── README.md
@@ -16,7 +16,7 @@ pickleball-booking-system/
 ## Tech Stack
 
 - **Backend:** Spring Boot 3, Java 21, Maven, MySQL, JPA, Spring Security JWT
-- **Frontend:** (placeholder)
+- **Frontend:** Next.js, Tailwind CSS, Axios, TanStack Query, Zustand
 
 ## Quick Start (Backend)
 

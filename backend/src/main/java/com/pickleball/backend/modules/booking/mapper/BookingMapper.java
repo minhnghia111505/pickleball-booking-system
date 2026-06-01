@@ -5,16 +5,21 @@ import com.pickleball.backend.modules.booking.dto.response.BookingResponse;
 import com.pickleball.backend.modules.booking.dto.response.BookingUserSummaryResponse;
 import com.pickleball.backend.modules.booking.dto.response.CourtScheduleSlotResponse;
 import com.pickleball.backend.modules.booking.entity.Booking;
+import com.pickleball.backend.modules.court.entity.Court;
+import com.pickleball.backend.modules.user.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BookingMapper {
 
-    public BookingResponse toResponse(Booking booking) {
+    /**
+     * Maps booking with already-loaded associations (avoids lazy-load after persist).
+     */
+    public BookingResponse toResponse(Booking booking, User user, Court court) {
         return BookingResponse.builder()
                 .id(booking.getId())
-                .user(toUserSummary(booking))
-                .court(toCourtSummary(booking))
+                .user(toUserSummary(user))
+                .court(toCourtSummary(court))
                 .bookingDate(booking.getBookingDate())
                 .startTime(booking.getStartTime())
                 .endTime(booking.getEndTime())
@@ -27,6 +32,13 @@ public class BookingMapper {
                 .build();
     }
 
+    /**
+     * Requires {@code user} and {@code court} initialized (entity graph or fetch join).
+     */
+    public BookingResponse toResponse(Booking booking) {
+        return toResponse(booking, booking.getUser(), booking.getCourt());
+    }
+
     public CourtScheduleSlotResponse toScheduleSlot(Booking booking) {
         return CourtScheduleSlotResponse.builder()
                 .bookingId(booking.getId())
@@ -36,19 +48,19 @@ public class BookingMapper {
                 .build();
     }
 
-    private BookingUserSummaryResponse toUserSummary(Booking booking) {
+    private BookingUserSummaryResponse toUserSummary(User user) {
         return BookingUserSummaryResponse.builder()
-                .id(booking.getUser().getId())
-                .fullName(booking.getUser().getFullName())
-                .email(booking.getUser().getEmail())
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
                 .build();
     }
 
-    private BookingCourtSummaryResponse toCourtSummary(Booking booking) {
+    private BookingCourtSummaryResponse toCourtSummary(Court court) {
         return BookingCourtSummaryResponse.builder()
-                .id(booking.getCourt().getId())
-                .name(booking.getCourt().getName())
-                .address(booking.getCourt().getAddress())
+                .id(court.getId())
+                .name(court.getName())
+                .address(court.getAddress())
                 .build();
     }
 }

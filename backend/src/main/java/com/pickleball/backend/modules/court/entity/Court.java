@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,13 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "courts")
+@Table(
+        name = "courts",
+        indexes = {
+                @Index(name = "idx_courts_name", columnList = "name"),
+                @Index(name = "idx_courts_status", columnList = "status")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
