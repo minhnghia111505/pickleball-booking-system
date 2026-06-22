@@ -1,6 +1,8 @@
 package com.pickleball.backend.modules.user.entity;
 
 public enum UserRole {
-    USER,
-    ADMIN
+    ROLE_USER,
+    ROLE_STAFF,
+    ROLE_MANAGER,
+    ROLE_SUPER_ADMIN
 }

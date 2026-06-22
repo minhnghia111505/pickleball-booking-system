@@ -1,47 +1,38 @@
-package com.pickleball.backend.modules.user.entity;
+package com.pickleball.backend.modules.club.entity;
 
-import com.pickleball.backend.modules.club.entity.Club;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "clubs")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Club {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id")
-    private Club club;
-
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(nullable = false)
-    private String password;
+    private String name;
 
-    @Column(name = "full_name", nullable = false)
-    private String fullName;
+    @Column(nullable = false, length = 500)
+    private String address;
 
     private String phone;
+    private String email;
 
-    @Column(name = "avatar_url", length = 512)
-    private String avatarUrl;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private UserRole role;
+    @Column(name = "logo_url", length = 512)
+    private String logoUrl;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private UserStatus status;
+    private String status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -53,7 +44,7 @@ public class User {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (status == null) status = UserStatus.ACTIVE;
+        if (status == null) status = "ACTIVE";
     }
 
     @PreUpdate
