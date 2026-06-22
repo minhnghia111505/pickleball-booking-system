@@ -32,7 +32,6 @@ public class CourtController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
     public ResponseEntity<ApiResponse<PageResponse<CourtResponse>>> getCourts(
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -43,7 +42,6 @@ public class CourtController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
     public ResponseEntity<ApiResponse<CourtResponse>> getCourtById(@PathVariable Long id) {
         CourtResponse court = courtService.getCourtById(id);
         return ResponseEntity.ok(ApiResponse.success("Court retrieved successfully", court));
