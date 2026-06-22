@@ -10,6 +10,8 @@ import java.time.LocalDate;
 public interface BookingService {
 
     BookingResponse createBooking(String userEmail, CreateBookingRequest request);
+    
+    void payBooking(String userEmail, Long bookingId);
 
     void cancelBooking(String userEmail, Long bookingId);
 

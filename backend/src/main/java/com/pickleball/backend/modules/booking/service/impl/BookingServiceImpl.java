@@ -24,6 +24,13 @@ import com.pickleball.backend.modules.court.repository.CourtRepository;
 import com.pickleball.backend.modules.user.entity.User;
 import com.pickleball.backend.modules.user.entity.UserStatus;
 import com.pickleball.backend.modules.user.repository.UserRepository;
+import com.pickleball.backend.modules.club.entity.ClubService;
+import com.pickleball.backend.modules.club.entity.ServiceStatus;
+import com.pickleball.backend.modules.club.repository.ClubServiceRepository;
+import com.pickleball.backend.modules.booking.entity.BookingServiceItem;
+import com.pickleball.backend.modules.booking.dto.request.ServiceRequest;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import com.pickleball.backend.response.PageResponse;
 import com.pickleball.backend.security.util.SecurityUtils;
 import com.pickleball.backend.util.PageableUtils;
@@ -47,6 +54,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingAmountCalculator bookingAmountCalculator;
     private final BookingProperties bookingProperties;
     private final PaginationProperties paginationProperties;
+    private final ClubServiceRepository clubServiceRepository;
 
     public BookingServiceImpl(
             BookingRepository bookingRepository,
@@ -57,7 +65,8 @@ public class BookingServiceImpl implements BookingService {
             BookingOverlapChecker bookingOverlapChecker,
             BookingAmountCalculator bookingAmountCalculator,
             BookingProperties bookingProperties,
-            PaginationProperties paginationProperties
+            PaginationProperties paginationProperties,
+            ClubServiceRepository clubServiceRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
@@ -68,6 +77,7 @@ public class BookingServiceImpl implements BookingService {
         this.bookingAmountCalculator = bookingAmountCalculator;
         this.bookingProperties = bookingProperties;
         this.paginationProperties = paginationProperties;
+        this.clubServiceRepository = clubServiceRepository;
     }
 
     @Override
@@ -92,7 +102,29 @@ public class BookingServiceImpl implements BookingService {
         booking.setBookingDate(request.getBookingDate());
         booking.setStartTime(request.getStartTime());
         booking.setEndTime(request.getEndTime());
-        booking.setTotalAmount(bookingAmountCalculator.calculate(court, request.getStartTime(), request.getEndTime()));
+        
+        List<BookingServiceItem> serviceItems = new ArrayList<>();
+        if (request.getServices() != null && !request.getServices().isEmpty()) {
+            for (ServiceRequest svcReq : request.getServices()) {
+                ClubService service = clubServiceRepository.findById(svcReq.getServiceId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + svcReq.getServiceId()));
+                
+                if (service.getStatus() != ServiceStatus.ACTIVE) {
+                    throw new BusinessException("Service " + service.getName() + " is currently unavailable");
+                }
+                
+                BookingServiceItem item = new BookingServiceItem();
+                item.setBooking(booking);
+                item.setService(service);
+                item.setQuantity(svcReq.getQuantity());
+                item.setUnitPrice(service.getPrice());
+                item.setTotalPrice(service.getPrice().multiply(BigDecimal.valueOf(svcReq.getQuantity())));
+                serviceItems.add(item);
+            }
+        }
+        booking.getServices().addAll(serviceItems);
+        
+        booking.setTotalAmount(bookingAmountCalculator.calculate(court, request.getStartTime(), request.getEndTime(), serviceItems));
         booking.setPaymentStatus(PaymentStatus.UNPAID);
 
         if (bookingProperties.requirePaymentBeforeConfirm()) {
@@ -103,6 +135,34 @@ public class BookingServiceImpl implements BookingService {
 
         Booking saved = bookingRepository.save(booking);
         return bookingMapper.toResponse(saved, user, court);
+    }
+
+    @Override
+    @Transactional
+    public void payBooking(String userEmail, Long bookingId) {
+        Booking booking = bookingRepository.findByIdWithUserAndCourt(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (!booking.getUser().getEmail().equals(userEmail) && !SecurityUtils.isAdmin()) {
+            throw new BusinessException("You are not allowed to pay for this booking");
+        }
+
+        if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new BusinessException("Cannot pay for a cancelled booking");
+        }
+
+        if (booking.getPaymentStatus() == PaymentStatus.PAID) {
+            throw new BusinessException("Booking is already paid");
+        }
+
+        booking.setPaymentStatus(PaymentStatus.PAID);
+        booking.setPaymentReference("MOCK_" + System.currentTimeMillis());
+        
+        if (booking.getBookingStatus() == BookingStatus.PENDING) {
+            booking.setBookingStatus(BookingStatus.CONFIRMED);
+        }
+        
+        bookingRepository.save(booking);
     }
 
     @Override

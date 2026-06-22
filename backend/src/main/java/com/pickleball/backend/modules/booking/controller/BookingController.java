@@ -52,6 +52,14 @@ public class BookingController {
         bookingService.cancelBooking(email, id);
         return ResponseEntity.ok(ApiResponse.success("Booking cancelled successfully", null));
     }
+    
+    @PostMapping("/{id}/pay")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
+    public ResponseEntity<ApiResponse<Void>> payBooking(@PathVariable Long id) {
+        String email = SecurityUtils.getCurrentUserEmail();
+        bookingService.payBooking(email, id);
+        return ResponseEntity.ok(ApiResponse.success("Booking paid successfully (Mock)", null));
+    }
 
     @GetMapping("/my-bookings")
     @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")

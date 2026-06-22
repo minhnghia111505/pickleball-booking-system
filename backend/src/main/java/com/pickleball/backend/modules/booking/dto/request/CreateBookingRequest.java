@@ -28,4 +28,6 @@ public class CreateBookingRequest {
     @NotNull(message = "End time is required")
     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
     private LocalTime endTime;
+
+    private java.util.List<@jakarta.validation.Valid ServiceRequest> services = new java.util.ArrayList<>();
 }

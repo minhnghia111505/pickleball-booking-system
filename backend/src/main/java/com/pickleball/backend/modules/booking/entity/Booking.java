@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -83,4 +84,7 @@ public class Booking extends BaseEntity {
 
     @Column(name = "payment_reference", length = 255)
     private String paymentReference;
+
+    @OneToMany(mappedBy = "booking", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<BookingServiceItem> services = new java.util.ArrayList<>();
 }
