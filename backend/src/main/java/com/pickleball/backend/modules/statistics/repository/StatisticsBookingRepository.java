@@ -99,4 +99,100 @@ public interface StatisticsBookingRepository extends JpaRepository<Booking, Long
             @Param("statuses") Collection<BookingStatus> statuses,
             Pageable pageable
     );
+
+    // --- Club Specific Methods ---
+
+    @Query("""
+            SELECT COUNT(b)
+            FROM Booking b
+            WHERE b.club.id = :clubId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+            """)
+    long countBookingsInPeriodByClubId(
+            @Param("clubId") Long clubId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    @Query("""
+            SELECT b.bookingStatus AS bookingStatus, COUNT(b) AS count
+            FROM Booking b
+            WHERE b.club.id = :clubId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+            GROUP BY b.bookingStatus
+            """)
+    List<BookingStatusCountProjection> countBookingsGroupByStatusByClubId(
+            @Param("clubId") Long clubId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    @Query("""
+            SELECT COALESCE(SUM(b.totalAmount), 0)
+            FROM Booking b
+            WHERE b.club.id = :clubId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+              AND b.bookingStatus IN :statuses
+            """)
+    BigDecimal sumRevenueInPeriodByClubId(
+            @Param("clubId") Long clubId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuses") Collection<BookingStatus> statuses
+    );
+
+    @Query("""
+            SELECT b.bookingDate AS bookingDate, COALESCE(SUM(b.totalAmount), 0) AS amount
+            FROM Booking b
+            WHERE b.club.id = :clubId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+              AND b.bookingStatus IN :statuses
+            GROUP BY b.bookingDate
+            ORDER BY b.bookingDate ASC
+            """)
+    List<RevenueByDateProjection> sumRevenueGroupByDateByClubId(
+            @Param("clubId") Long clubId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuses") Collection<BookingStatus> statuses
+    );
+
+    @Query("""
+            SELECT b.court.id AS courtId,
+                   b.court.name AS courtName,
+                   COUNT(b) AS bookingCount
+            FROM Booking b
+            WHERE b.club.id = :clubId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+              AND b.bookingStatus IN :statuses
+            GROUP BY b.court.id, b.court.name
+            ORDER BY COUNT(b) DESC
+            """)
+    List<TopCourtProjection> findTopCourtsByBookingsByClubId(
+            @Param("clubId") Long clubId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuses") Collection<BookingStatus> statuses,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT b.user.id AS userId,
+                   b.user.fullName AS fullName,
+                   b.user.email AS email,
+                   COUNT(b) AS bookingCount
+            FROM Booking b
+            WHERE b.club.id = :clubId
+              AND b.bookingDate BETWEEN :startDate AND :endDate
+              AND b.bookingStatus IN :statuses
+            GROUP BY b.user.id, b.user.fullName, b.user.email
+            ORDER BY COUNT(b) DESC
+            """)
+    List<TopUserProjection> findTopUsersByBookingsByClubId(
+            @Param("clubId") Long clubId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("statuses") Collection<BookingStatus> statuses,
+            Pageable pageable
+    );
 }

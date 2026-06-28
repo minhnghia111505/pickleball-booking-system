@@ -10,13 +10,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 
+import { clubService } from "@/services/club.service";
+
 export default function CourtsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [clubId, setClubId] = useState<number | undefined>();
   const [page, setPage] = useState(0);
 
+  const { data: clubs } = useQuery({
+    queryKey: ["clubs"],
+    queryFn: () => clubService.getClubs({ size: 100 }),
+  });
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["courts", searchTerm, page],
-    queryFn: () => courtService.getCourts({ search: searchTerm, page, size: 9 }),
+    queryKey: ["courts", searchTerm, clubId, page],
+    queryFn: () => courtService.getCourts({ search: searchTerm, clubId, page, size: 9 }),
   });
 
   return (
@@ -28,7 +36,7 @@ export default function CourtsPage() {
         </p>
       </div>
 
-      <div className="mb-8 max-w-md">
+      <div className="mb-8 flex flex-col sm:flex-row gap-4 max-w-2xl">
         <Input
           type="search"
           placeholder="Tìm kiếm sân..."
@@ -37,8 +45,21 @@ export default function CourtsPage() {
             setSearchTerm(e.target.value);
             setPage(0);
           }}
-          className="bg-background"
+          className="bg-background flex-1"
         />
+        <select 
+          className="bg-background border rounded-md px-3 py-2 text-sm w-full sm:w-64"
+          value={clubId || ""}
+          onChange={(e) => {
+            setClubId(e.target.value ? Number(e.target.value) : undefined);
+            setPage(0);
+          }}
+        >
+          <option value="">Tất cả câu lạc bộ</option>
+          {clubs?.content.map((c: any) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
       </div>
 
       {isLoading ? (

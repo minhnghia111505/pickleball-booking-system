@@ -1,6 +1,8 @@
 package com.pickleball.backend.modules.booking.entity;
 
 import com.pickleball.backend.entity.BaseEntity;
+import com.pickleball.backend.modules.booking.entity.BookingServiceItem;
+import com.pickleball.backend.modules.club.entity.Club;
 import com.pickleball.backend.modules.court.entity.Court;
 import com.pickleball.backend.modules.user.entity.User;
 import com.pickleball.backend.persistence.EntityGraphNames;
@@ -53,6 +55,10 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 public class Booking extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "club_id", nullable = false)
+    private Club club;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)

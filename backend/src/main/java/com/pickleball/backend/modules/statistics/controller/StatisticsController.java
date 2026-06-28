@@ -22,7 +22,7 @@ public class StatisticsController {
     }
 
     @GetMapping("/dashboard")
-    @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.SUPER_ADMIN + "', '" + SecurityRoles.MANAGER + "')")
     public ResponseEntity<ApiResponse<DashboardStatisticsResponse>> getDashboard(
             @RequestParam(required = false) Integer days
     ) {

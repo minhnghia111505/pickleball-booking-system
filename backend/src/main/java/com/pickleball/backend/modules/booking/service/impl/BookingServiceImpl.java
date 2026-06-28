@@ -99,6 +99,9 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setCourt(court);
+        if (court.getClub() != null) {
+            booking.setClub(court.getClub());
+        }
         booking.setBookingDate(request.getBookingDate());
         booking.setStartTime(request.getStartTime());
         booking.setEndTime(request.getEndTime());
@@ -143,9 +146,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdWithUserAndCourt(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
 
-        if (!booking.getUser().getEmail().equals(userEmail) && !SecurityUtils.isAdmin()) {
-            throw new BusinessException("You are not allowed to pay for this booking");
-        }
+        assertCanManageBooking(userEmail, booking);
 
         if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
             throw new BusinessException("Cannot pay for a cancelled booking");
@@ -171,7 +172,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdWithUserAndCourt(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
 
-        assertCanCancel(userEmail, booking);
+        assertCanManageBooking(userEmail, booking);
 
         if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
             throw new BusinessException("Booking is already cancelled");
@@ -195,6 +196,20 @@ public class BookingServiceImpl implements BookingService {
         Pageable pageable = PageableUtils.create(page, size, paginationProperties);
         Page<Booking> bookingPage = bookingRepository.findByUser_IdOrderByBookingDateDescStartTimeDesc(
                 user.getId(), pageable
+        );
+        return PageResponse.from(bookingPage.map(bookingMapper::toResponse));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<BookingResponse> getClubBookings(String userEmail, int page, Integer size) {
+        User user = findActiveUser(userEmail);
+        if (user.getClub() == null) {
+            throw new BusinessException("You do not belong to any club.");
+        }
+        Pageable pageable = PageableUtils.create(page, size, paginationProperties);
+        Page<Booking> bookingPage = bookingRepository.findByClub_IdOrderByBookingDateDescStartTimeDesc(
+                user.getClub().getId(), pageable
         );
         return PageResponse.from(bookingPage.map(bookingMapper::toResponse));
     }
@@ -245,10 +260,24 @@ public class BookingServiceImpl implements BookingService {
         return court;
     }
 
-    private void assertCanCancel(String userEmail, Booking booking) {
+    private void assertCanManageBooking(String userEmail, Booking booking) {
         boolean isOwner = booking.getUser().getEmail().equals(userEmail);
-        if (!isOwner && !SecurityUtils.isAdmin()) {
-            throw new BusinessException("You are not allowed to cancel this booking");
+        if (isOwner || SecurityUtils.isAdmin()) {
+            return;
+        }
+        
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                
+        boolean isManagerOrStaff = currentUser.getRole() == com.pickleball.backend.modules.user.entity.UserRole.ROLE_MANAGER 
+                                || currentUser.getRole() == com.pickleball.backend.modules.user.entity.UserRole.ROLE_STAFF;
+                                
+        boolean belongsToSameClub = currentUser.getClub() != null 
+                                 && booking.getClub() != null 
+                                 && currentUser.getClub().getId().equals(booking.getClub().getId());
+                                 
+        if (!isManagerOrStaff || !belongsToSameClub) {
+            throw new BusinessException("You are not allowed to manage this booking");
         }
     }
 }

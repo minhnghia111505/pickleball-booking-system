@@ -7,6 +7,7 @@ import com.pickleball.backend.modules.court.service.CourtService;
 import com.pickleball.backend.response.ApiResponse;
 import com.pickleball.backend.response.PageResponse;
 import com.pickleball.backend.security.SecurityRoles;
+import com.pickleball.backend.security.util.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,12 @@ public class CourtController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<CourtResponse>>> getCourts(
+            @RequestParam(required = false) Long clubId,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size
     ) {
-        PageResponse<CourtResponse> courts = courtService.getCourts(search, page, size);
+        PageResponse<CourtResponse> courts = courtService.getCourts(clubId, search, page, size);
         return ResponseEntity.ok(ApiResponse.success("Courts retrieved successfully", courts));
     }
 
@@ -48,27 +50,29 @@ public class CourtController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.ADMIN + "', '" + SecurityRoles.MANAGER + "')")
     public ResponseEntity<ApiResponse<CourtResponse>> createCourt(
             @Valid @RequestBody CreateCourtRequest request
     ) {
-        CourtResponse court = courtService.createCourt(request);
+        String email = SecurityUtils.getCurrentUserEmail();
+        CourtResponse court = courtService.createCourt(email, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Court created successfully", court));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.ADMIN + "', '" + SecurityRoles.MANAGER + "')")
     public ResponseEntity<ApiResponse<CourtResponse>> updateCourt(
             @PathVariable Long id,
             @Valid @RequestBody UpdateCourtRequest request
     ) {
-        CourtResponse court = courtService.updateCourt(id, request);
+        String email = SecurityUtils.getCurrentUserEmail();
+        CourtResponse court = courtService.updateCourt(email, id, request);
         return ResponseEntity.ok(ApiResponse.success("Court updated successfully", court));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.ADMIN + "', '" + SecurityRoles.MANAGER + "')")
     public ResponseEntity<ApiResponse<Void>> deleteCourt(@PathVariable Long id) {
         courtService.deleteCourt(id);
         return ResponseEntity.ok(ApiResponse.success("Court deleted successfully", null));

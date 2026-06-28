@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { ROUTES } from "@/constants/routes";
@@ -12,64 +14,94 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
+import { LayoutDashboard } from "lucide-react";
 
-const navItems = [
-  { href: ROUTES.HOME, label: "Trang chủ" },
-  { href: ROUTES.COURTS, label: "Sân" },
-  { href: ROUTES.BOOKINGS, label: "Lịch sử đặt sân" },
-] as const;
+function getRoleDashboardLink(role: string): { href: string; label: string } | null {
+  switch (role) {
+    case "ROLE_STAFF": return { href: ROUTES.STAFF.DASHBOARD, label: "Staff Dashboard" };
+    case "ROLE_MANAGER": return { href: ROUTES.MANAGER.DASHBOARD, label: "Manager Dashboard" };
+    case "ROLE_SUPER_ADMIN": return { href: ROUTES.ADMIN.DASHBOARD, label: "Admin Dashboard" };
+    default: return null;
+  }
+}
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuthStore();
+  const isCustomerRole = !user?.role || user.role === "ROLE_USER";
+  const dashboardLink = user ? getRoleDashboardLink(user.role) : null;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border bg-white">
       <MainContainer>
         <div className="flex h-14 items-center justify-between gap-4 sm:h-16">
           <Link
             href={ROUTES.HOME}
-            className="text-lg font-semibold tracking-tight text-foreground sm:text-xl"
+            className="text-xl font-black tracking-tight text-primary sm:text-2xl"
           >
             {siteConfig.name}
           </Link>
 
-          <nav
-            className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex"
-            aria-label="Main navigation"
-          >
-            {navItems.map((item) => {
-              if (item.href === ROUTES.BOOKINGS && !isAuthenticated) return null;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="transition-colors hover:text-foreground"
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Nav — only show for customers */}
+          {isCustomerRole && (
+            <nav
+              className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex"
+              aria-label="Main navigation"
+            >
+              <Link href={ROUTES.HOME} className="transition-colors hover:text-foreground">Trang chủ</Link>
+              <Link href={ROUTES.COURTS} className="transition-colors hover:text-foreground">Sân</Link>
+              {isAuthenticated && (
+                <Link href={ROUTES.BOOKINGS} className="transition-colors hover:text-foreground">Lịch sử đặt sân</Link>
+              )}
+            </nav>
+          )}
+
+          {/* For staff/manager/admin: show dashboard link */}
+          {dashboardLink && (
+            <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+              <Link
+                href={dashboardLink.href}
+                className="flex items-center gap-1.5 text-primary font-semibold"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                {dashboardLink.label}
+              </Link>
+            </nav>
+          )}
 
           <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated && user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    {user.fullName}
-                  </Button>
-                </DropdownMenuTrigger>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="outline" className="gap-2">
+                      {user.fullName}
+                    </Button>
+                  }
+                />
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href={ROUTES.BOOKINGS}>Lịch sử đặt sân</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-red-500">
-                    Đăng xuất
-                  </DropdownMenuItem>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {dashboardLink && (
+                      <DropdownMenuItem
+                        render={<Link href={dashboardLink.href}>{dashboardLink.label}</Link>}
+                      />
+                    )}
+                    {isCustomerRole && (
+                      <DropdownMenuItem
+                        render={<Link href={ROUTES.BOOKINGS}>Lịch sử đặt sân</Link>}
+                      />
+                    )}
+                    <DropdownMenuItem
+                      render={<Link href="/profile">Hồ sơ cá nhân</Link>}
+                    />
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="text-red-500">
+                      Đăng xuất
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (

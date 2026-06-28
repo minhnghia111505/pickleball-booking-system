@@ -33,6 +33,8 @@ public class CourtMapper {
                 .pricePerHour(court.getPricePerHour())
                 .status(court.getStatus())
                 .imageUrl(court.getImageUrl())
+                .clubId(court.getClub() != null ? court.getClub().getId() : null)
+                .clubName(court.getClub() != null ? court.getClub().getName() : null)
                 .createdAt(court.getCreatedAt())
                 .updatedAt(court.getUpdatedAt())
                 .build();

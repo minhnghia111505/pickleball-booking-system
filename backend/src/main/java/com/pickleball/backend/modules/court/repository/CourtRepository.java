@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CourtRepository extends JpaRepository<Court, Long> {
 
     Page<Court> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Court> findByClubId(Long clubId, Pageable pageable);
+    Page<Court> findByClubIdAndNameContainingIgnoreCase(Long clubId, String name, Pageable pageable);
 }

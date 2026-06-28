@@ -6,6 +6,8 @@ export interface Court {
   pricePerHour: number;
   status: "ACTIVE" | "MAINTENANCE" | "INACTIVE";
   imageUrl: string | null;
+  clubId?: number;
+  clubName?: string;
   createdAt: string;
   updatedAt: string;
 }

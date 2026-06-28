@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Geist_Mono } from "next/font/google";
 import { AppShell } from "@/components/layout/app-shell";
 import { siteConfig } from "@/config/site";
 import { AppProviders } from "@/providers/app-providers";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfitFont = Outfit({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${outfitFont.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <AppProviders>

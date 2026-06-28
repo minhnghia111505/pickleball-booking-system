@@ -1,16 +1,18 @@
 spring:
   application:
     name: pickleball-backend
+  config:
+    import: optional:file:.env[.properties]
 
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:pickleball_db}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Nghia111505!}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -77,3 +79,4 @@ springdoc:
 logging:
   level:
     com.pickleball.backend: INFO
+    org.springframework.security: WARN

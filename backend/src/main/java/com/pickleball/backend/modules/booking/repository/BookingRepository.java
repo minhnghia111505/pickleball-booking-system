@@ -57,6 +57,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
     Page<Booking> findByUser_IdOrderByBookingDateDescStartTimeDesc(Long userId, Pageable pageable);
 
+    @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
+    Page<Booking> findByClub_IdOrderByBookingDateDescStartTimeDesc(Long clubId, Pageable pageable);
+
     /**
      * Scalar fields only — safe without fetch join (see {@code BookingMapper#toScheduleSlot}).
      */

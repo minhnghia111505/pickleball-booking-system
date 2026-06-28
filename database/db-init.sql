@@ -1,7 +1,9 @@
 -- Pickleball Booking System - Database initialization
+SET NAMES utf8mb4;
 -- Multi-Tenant SaaS Architecture
 
-CREATE DATABASE IF NOT EXISTS pickleball_db
+DROP DATABASE IF EXISTS pickleball_db;
+CREATE DATABASE pickleball_db
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
@@ -135,7 +137,7 @@ CREATE TABLE IF NOT EXISTS booking_services (
 
 -- =========================================================================
 -- MOCK DATA (Chèn dữ liệu mẫu để thuận tiện việc test)
--- Mật khẩu mặc định là mã hóa BCrypt của '123456' ($2a$10$wY1twTgHQE7G.MhTj62/l.MhL78cQ02qTFYz.S5v0h6rOa68bC9Lq)
+-- Mật khẩu mặc định là mã hóa BCrypt của '123456' ($2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi)
 -- =========================================================================
 
 -- 1. MOCK CLUBS
@@ -146,20 +148,20 @@ INSERT INTO clubs (name, address, phone, email, description, status, created_at,
 -- 2. MOCK USERS
 -- Super Admin (Không thuộc Club nào)
 INSERT INTO users (club_id, email, password, full_name, phone, role, status, created_at, updated_at) VALUES 
-(NULL, 'superadmin@sanbong.vn', '$2a$10$wY1twTgHQE7G.MhTj62/l.MhL78cQ02qTFYz.S5v0h6rOa68bC9Lq', 'Super Admin Nền Tảng', '0900000000', 'ROLE_SUPER_ADMIN', 'ACTIVE', NOW(), NOW());
+(NULL, 'superadmin@sanbong.vn', '$2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi', 'Super Admin Nền Tảng', '0900000000', 'ROLE_SUPER_ADMIN', 'ACTIVE', NOW(), NOW());
 
 -- Manager (Chủ sân) cho Club 1 và Club 2
 INSERT INTO users (club_id, email, password, full_name, phone, role, status, created_at, updated_at) VALUES 
-(1, 'manager_master@sanbong.vn', '$2a$10$wY1twTgHQE7G.MhTj62/l.MhL78cQ02qTFYz.S5v0h6rOa68bC9Lq', 'Chủ sân Master', '0911111111', 'ROLE_MANAGER', 'ACTIVE', NOW(), NOW()),
-(2, 'manager_sunrise@sanbong.vn', '$2a$10$wY1twTgHQE7G.MhTj62/l.MhL78cQ02qTFYz.S5v0h6rOa68bC9Lq', 'Chủ sân Sunrise', '0922222222', 'ROLE_MANAGER', 'ACTIVE', NOW(), NOW());
+(1, 'manager_master@sanbong.vn', '$2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi', 'Chủ sân Master', '0911111111', 'ROLE_MANAGER', 'ACTIVE', NOW(), NOW()),
+(2, 'manager_sunrise@sanbong.vn', '$2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi', 'Chủ sân Sunrise', '0922222222', 'ROLE_MANAGER', 'ACTIVE', NOW(), NOW());
 
 -- Staff (Nhân viên) cho Club 1
 INSERT INTO users (club_id, email, password, full_name, phone, role, status, created_at, updated_at) VALUES 
-(1, 'staff_master@sanbong.vn', '$2a$10$wY1twTgHQE7G.MhTj62/l.MhL78cQ02qTFYz.S5v0h6rOa68bC9Lq', 'Nhân viên Master', '0933333333', 'ROLE_STAFF', 'ACTIVE', NOW(), NOW());
+(1, 'staff_master@sanbong.vn', '$2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi', 'Nhân viên Master', '0933333333', 'ROLE_STAFF', 'ACTIVE', NOW(), NOW());
 
 -- User (Khách hàng)
 INSERT INTO users (club_id, email, password, full_name, phone, role, status, created_at, updated_at) VALUES 
-(NULL, 'khachhang1@gmail.com', '$2a$10$wY1twTgHQE7G.MhTj62/l.MhL78cQ02qTFYz.S5v0h6rOa68bC9Lq', 'Nguyễn Văn Khách', '0944444444', 'ROLE_USER', 'ACTIVE', NOW(), NOW());
+(NULL, 'khachhang1@gmail.com', '$2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi', 'Nguyễn Văn Khách', '0944444444', 'ROLE_USER', 'ACTIVE', NOW(), NOW());
 
 -- 3. MOCK COURTS
 -- Club 1 (Master)

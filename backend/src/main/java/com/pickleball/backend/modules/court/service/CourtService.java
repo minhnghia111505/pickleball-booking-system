@@ -7,13 +7,13 @@ import com.pickleball.backend.response.PageResponse;
 
 public interface CourtService {
 
-    PageResponse<CourtResponse> getCourts(String search, int page, Integer size);
+    PageResponse<CourtResponse> getCourts(Long clubId, String search, int page, Integer size);
 
     CourtResponse getCourtById(Long id);
 
-    CourtResponse createCourt(CreateCourtRequest request);
+    CourtResponse createCourt(String userEmail, CreateCourtRequest request);
 
-    CourtResponse updateCourt(Long id, UpdateCourtRequest request);
+    CourtResponse updateCourt(String userEmail, Long id, UpdateCourtRequest request);
 
     void deleteCourt(Long id);
 }

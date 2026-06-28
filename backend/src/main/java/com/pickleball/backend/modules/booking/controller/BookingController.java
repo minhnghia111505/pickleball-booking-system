@@ -35,7 +35,7 @@ public class BookingController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<BookingResponse>> createBooking(
             @Valid @RequestBody CreateBookingRequest request
     ) {
@@ -46,7 +46,7 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.STAFF + "', '" + SecurityRoles.MANAGER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<Void>> cancelBooking(@PathVariable Long id) {
         String email = SecurityUtils.getCurrentUserEmail();
         bookingService.cancelBooking(email, id);
@@ -54,7 +54,7 @@ public class BookingController {
     }
     
     @PostMapping("/{id}/pay")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.STAFF + "', '" + SecurityRoles.MANAGER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<Void>> payBooking(@PathVariable Long id) {
         String email = SecurityUtils.getCurrentUserEmail();
         bookingService.payBooking(email, id);
@@ -62,7 +62,7 @@ public class BookingController {
     }
 
     @GetMapping("/my-bookings")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<PageResponse<BookingResponse>>> getMyBookings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size
@@ -72,8 +72,19 @@ public class BookingController {
         return ResponseEntity.ok(ApiResponse.success("Bookings retrieved successfully", bookings));
     }
 
+    @GetMapping("/club")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.STAFF + "', '" + SecurityRoles.MANAGER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
+    public ResponseEntity<ApiResponse<PageResponse<BookingResponse>>> getClubBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) Integer size
+    ) {
+        String email = SecurityUtils.getCurrentUserEmail();
+        PageResponse<BookingResponse> bookings = bookingService.getClubBookings(email, page, size);
+        return ResponseEntity.ok(ApiResponse.success("Club bookings retrieved successfully", bookings));
+    }
+
     @GetMapping("/court/{courtId}")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.ADMIN + "')")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.STAFF + "', '" + SecurityRoles.MANAGER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<CourtScheduleResponse>> getCourtSchedule(
             @PathVariable Long courtId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date

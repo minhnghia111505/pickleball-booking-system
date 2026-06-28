@@ -1,0 +1,16 @@
+SET NAMES utf8mb4;
+UPDATE pickleball_db.clubs SET name='Pickleball Master Club', address='123 Cầu Giấy, Hà Nội', description='Tổ hợp 4 sân Pickleball chuẩn quốc tế có mái che.' WHERE id=1;
+UPDATE pickleball_db.clubs SET name='Sunrise Pickleball', address='456 Nguyễn Hữu Thọ, Quận 7, TP.HCM', description='Sân chơi ngoài trời thoáng mát, không gian mở.' WHERE id=2;
+UPDATE pickleball_db.users SET full_name='Super Admin Nền Tảng' WHERE email='superadmin@sanbong.vn';
+UPDATE pickleball_db.users SET full_name='Chủ sân Master' WHERE email='manager_master@sanbong.vn';
+UPDATE pickleball_db.users SET full_name='Chủ sân Sunrise' WHERE email='manager_sunrise@sanbong.vn';
+UPDATE pickleball_db.users SET full_name='Nhân viên Master' WHERE email='staff_master@sanbong.vn';
+UPDATE pickleball_db.users SET full_name='Nguyễn Văn Khách' WHERE email='khachhang1@gmail.com';
+UPDATE pickleball_db.courts SET name='Sân Master 1 (Trong nhà)', description='Sân chuẩn, có mái che, thảm xịn' WHERE id=1;
+UPDATE pickleball_db.courts SET name='Sân Master 2 (Trong nhà)', description='Sân chuẩn, có mái che' WHERE id=2;
+UPDATE pickleball_db.courts SET name='Sân Master 3 (Ngoài trời)', description='Sân thoáng mát, có đèn LED đêm' WHERE id=3;
+UPDATE pickleball_db.courts SET name='Sân Sunrise A', description='Sân ngoài trời' WHERE id=4;
+UPDATE pickleball_db.courts SET name='Sân Sunrise B', description='Sân ngoài trời' WHERE id=5;
+UPDATE pickleball_db.services SET name='Nước khoáng Revive' WHERE id=1;
+UPDATE pickleball_db.services SET name='Thuê Vợt Selkirk' WHERE id=2;
+UPDATE pickleball_db.services SET name='Bóng Pickleball (Hộp 3 quả)' WHERE id=3;

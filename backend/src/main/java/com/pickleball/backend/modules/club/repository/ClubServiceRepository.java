@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ClubServiceRepository extends JpaRepository<ClubService, Long> {
     List<ClubService> findByClubIdAndStatus(Long clubId, com.pickleball.backend.modules.club.entity.ServiceStatus status);
+    org.springframework.data.domain.Page<ClubService> findByClubId(Long clubId, org.springframework.data.domain.Pageable pageable);
 }

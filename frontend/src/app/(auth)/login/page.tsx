@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { apiClient } from "@/lib/axios";
 import { useAuthStore, type User } from "@/stores/auth.store";
 import { Button } from "@/components/ui/button";
+import { getRoleHomePath } from "@/constants/routes";
 import {
   Card,
   CardContent,
@@ -44,13 +45,18 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsLoading(true);
-      const res = await apiClient.post<{ data: { token: string; user: unknown } }>("/auth/login", data) as { data: { token: string; user: User } };
+      const res = await apiClient.post("/auth/login", data) as any;
       const token = res.data.token;
-      const user = res.data.user;
+      const user: User = {
+        id: res.data.id,
+        email: res.data.email,
+        fullName: res.data.fullName,
+        role: res.data.role,
+      };
       
       setAuth(token, user);
       toast.success("Đăng nhập thành công!");
-      router.push("/");
+      router.push(getRoleHomePath(user.role));
     } catch (error: unknown) {
       const err = error as Error;
       toast.error(err.message || "Đăng nhập thất bại");

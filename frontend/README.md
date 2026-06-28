@@ -36,7 +36,7 @@ src/
 cd frontend
 cp .env.example .env.local
 npm install
-npm run dev
+npm run devcd f
 ```
 
 App: [http://localhost:3000](http://localhost:3000)

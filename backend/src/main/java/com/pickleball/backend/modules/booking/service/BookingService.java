@@ -17,5 +17,7 @@ public interface BookingService {
 
     PageResponse<BookingResponse> getMyBookings(String userEmail, int page, Integer size);
 
+    PageResponse<BookingResponse> getClubBookings(String userEmail, int page, Integer size);
+
     CourtScheduleResponse getCourtSchedule(Long courtId, LocalDate bookingDate);
 }

@@ -1,11 +1,15 @@
 package com.pickleball.backend.modules.court.entity;
 
 import com.pickleball.backend.entity.BaseEntity;
+import com.pickleball.backend.modules.club.entity.Club;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +29,10 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 public class Court extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "club_id", nullable = false)
+    private Club club;
 
     @Column(nullable = false, length = 200)
     private String name;

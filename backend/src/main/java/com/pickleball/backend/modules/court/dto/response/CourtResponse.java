@@ -18,6 +18,8 @@ public class CourtResponse {
     private BigDecimal pricePerHour;
     private CourtStatus status;
     private String imageUrl;
+    private Long clubId;
+    private String clubName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
