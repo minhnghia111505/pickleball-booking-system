@@ -8,6 +8,11 @@ export const bookingService = {
     return res.data;
   },
 
+  createBulkBookings: async (request: { bookings: CreateBookingRequest[] }) => {
+    const res = await apiClient.post<{ data: Booking[] }>("/bookings/bulk", request) as unknown as { data: Booking[] };
+    return res.data;
+  },
+
   getMyBookings: async (params?: { page?: number; size?: number }) => {
     const res = await apiClient.get<{ data: PageResponse<Booking> }>("/bookings/my-bookings", {
       params,

@@ -45,6 +45,17 @@ public class BookingController {
                 .body(ApiResponse.success("Booking created successfully", booking));
     }
 
+    @PostMapping("/bulk")
+    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
+    public ResponseEntity<ApiResponse<java.util.List<BookingResponse>>> createBulkBookings(
+            @Valid @RequestBody com.pickleball.backend.modules.booking.dto.request.BulkCreateBookingRequest request
+    ) {
+        String email = SecurityUtils.getCurrentUserEmail();
+        java.util.List<BookingResponse> bookings = bookingService.createBulkBookings(email, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Bulk bookings created successfully", bookings));
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.STAFF + "', '" + SecurityRoles.MANAGER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<Void>> cancelBooking(@PathVariable Long id) {

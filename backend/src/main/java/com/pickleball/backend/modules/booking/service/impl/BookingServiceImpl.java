@@ -142,6 +142,25 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
+    public List<BookingResponse> createBulkBookings(String userEmail, com.pickleball.backend.modules.booking.dto.request.BulkCreateBookingRequest request) {
+        if (request.getBookings() == null || request.getBookings().isEmpty()) {
+            throw new BusinessException("Bookings list cannot be empty");
+        }
+
+        List<BookingResponse> responses = new ArrayList<>();
+        for (CreateBookingRequest bookingRequest : request.getBookings()) {
+            // Re-using createBooking for each request. 
+            // Because createBooking is @Transactional, calling it directly from here 
+            // (since it's also @Transactional) will join the current transaction.
+            BookingResponse response = createBooking(userEmail, bookingRequest);
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    @Override
+    @Transactional
     public void payBooking(String userEmail, Long bookingId) {
         Booking booking = bookingRepository.findByIdWithUserAndCourt(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));

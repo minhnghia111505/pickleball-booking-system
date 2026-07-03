@@ -8,9 +8,9 @@ import { bookingService } from "@/services/booking.service";
 import { Court } from "@/types/court.type";
 import { CourtScheduleSlot } from "@/types/booking.type";
 import { useQuery } from "@tanstack/react-query";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
 import { clubService } from "@/services/club.service";
-import { Calendar as CalendarIcon, Clock, ArrowRight, MapPin } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, ArrowRight, MapPin, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ROUTES } from "@/constants/routes";
@@ -32,9 +32,9 @@ export default function BookCourtPage() {
   const courtId = Number(params?.id);
 
   const [court, setCourt] = useState<Court | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [bookedSlots, setBookedSlots] = useState<CourtScheduleSlot[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
+  const [selectedSlots, setSelectedSlots] = useState<{ start: string; end: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,10 +59,9 @@ export default function BookCourtPage() {
     const fetchSchedule = async () => {
       try {
         setIsLoading(true);
-        const dateStr = format(selectedDate, "yyyy-MM-dd");
-        const schedule = await bookingService.getCourtSchedule(courtId, dateStr);
+        const schedule = await bookingService.getCourtSchedule(courtId, selectedDate);
         setBookedSlots(schedule.slots || []);
-        setSelectedSlot(null); // reset slot on date change
+        setSelectedSlots([]); // reset slots on date change
       } catch (error) {
         toast.error("Lỗi khi tải lịch sân");
       } finally {
@@ -78,6 +77,21 @@ export default function BookCourtPage() {
         slot.bookingStatus !== "CANCELLED" && 
         slot.startTime.startsWith(startTime.slice(0, 5))
     );
+  };
+
+  const isSlotSelected = (startTime: string) => {
+    return selectedSlots.some((slot) => slot.start === startTime);
+  };
+
+  const toggleSlotSelection = (slot: { start: string; end: string }) => {
+    setSelectedSlots((prev) => {
+      const exists = prev.some((s) => s.start === slot.start);
+      if (exists) {
+        return prev.filter((s) => s.start !== slot.start);
+      } else {
+        return [...prev, slot];
+      }
+    });
   };
 
   const [selectedServices, setSelectedServices] = useState<{ [key: number]: number }>({});
@@ -108,10 +122,10 @@ export default function BookCourtPage() {
     }, 0);
   };
 
-  const totalAmount = (selectedSlot ? (court?.pricePerHour || 0) : 0) + calculateServicesTotal();
+  const totalAmount = (selectedSlots.length * (court?.pricePerHour || 0)) + calculateServicesTotal();
 
   const handleBook = async () => {
-    if (!selectedSlot) return;
+    if (selectedSlots.length === 0) return;
     try {
       setIsSubmitting(true);
       const servicesPayload = Object.entries(selectedServices).map(([serviceId, quantity]) => ({
@@ -119,13 +133,15 @@ export default function BookCourtPage() {
         quantity,
       }));
 
-      await bookingService.createBooking({
+      const bookingRequests = selectedSlots.map((slot) => ({
         courtId,
-        bookingDate: format(selectedDate, "yyyy-MM-dd"),
-        startTime: selectedSlot.start,
-        endTime: selectedSlot.end,
+        bookingDate: selectedDate,
+        startTime: slot.start,
+        endTime: slot.end,
         services: servicesPayload,
-      });
+      }));
+
+      await bookingService.createBulkBookings({ bookings: bookingRequests });
       toast.success("Đặt sân thành công!");
       router.push(ROUTES.BOOKINGS);
     } catch (error: any) {
@@ -153,40 +169,71 @@ export default function BookCourtPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Column: Selection */}
         <div className="lg:col-span-2 space-y-8">
+          
+          {/* Sơ đồ sân & Bảng giá (Court Layout & Pricing) */}
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 dark:text-white">
+              <MapPin className="h-5 w-5 text-primary" /> Thông tin sân
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 mb-2">Sơ đồ mặt bằng</h3>
+                <div className="aspect-video bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center dark:bg-slate-900 dark:border-slate-800">
+                  {/* Placeholder for actual image */}
+                  <div className="text-center text-slate-400 p-4">
+                    <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Hình ảnh sơ đồ sân</p>
+                    <p className="text-xs mt-1">(Sẽ cập nhật sau)</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 mb-2">Bảng giá</h3>
+                <div className="bg-slate-50 rounded-lg border border-slate-200 p-4 h-full dark:bg-slate-900 dark:border-slate-800">
+                  <div className="flex justify-between border-b border-slate-200 pb-2 mb-2 dark:border-slate-700">
+                    <span className="text-sm font-medium dark:text-slate-300">Giá mặc định:</span>
+                    <span className="text-sm font-bold text-primary">
+                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(court.pricePerHour)} / Giờ
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 flex items-start gap-1 mt-3">
+                    <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                    <p>Bảng giá có thể thay đổi tùy thuộc vào khung giờ và ngày lễ tết theo quy định của Câu lạc bộ.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Date Selection */}
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 dark:text-white">
               <CalendarIcon className="h-5 w-5 text-primary" /> Chọn ngày
             </h2>
-            <div className="flex flex-wrap gap-3">
-              {[0, 1, 2, 3, 4, 5, 6].map((offset) => {
-                const date = addDays(new Date(), offset);
-                const isSelected = format(date, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
-                return (
-                  <button
-                    key={offset}
-                    onClick={() => setSelectedDate(date)}
-                    className={cn(
-                      "flex flex-col items-center justify-center rounded-xl border p-3 transition-all",
-                      isSelected 
-                        ? "border-primary bg-primary text-primary-foreground shadow-md" 
-                        : "border-slate-200 bg-slate-50 text-slate-700 hover:border-primary/50 hover:bg-primary/5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
-                    )}
-                  >
-                    <span className="text-xs uppercase">{format(date, "EEE")}</span>
-                    <span className="text-xl font-bold mt-1">{format(date, "dd")}</span>
-                    <span className="text-xs">{format(date, "MM/yyyy")}</span>
-                  </button>
-                );
-              })}
+            <div className="flex items-center gap-4">
+              <input 
+                type="date" 
+                value={selectedDate}
+                min={format(new Date(), "yyyy-MM-dd")}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full sm:w-auto px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+              />
             </div>
           </div>
 
           {/* Time Selection */}
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-            <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 dark:text-white">
-              <Clock className="h-5 w-5 text-primary" /> Chọn khung giờ
-            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2 dark:text-white">
+                <Clock className="h-5 w-5 text-primary" /> Chọn khung giờ
+              </h2>
+              {/* Legends */}
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-white border border-slate-200 dark:bg-slate-800"></div>Trống</div>
+                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-primary/20 border border-primary"></div>Đang chọn</div>
+                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-slate-100 border border-slate-200 dark:bg-slate-900"></div>Đã đặt/Khóa</div>
+              </div>
+            </div>
             {isLoading ? (
               <div className="flex h-32 items-center justify-center">
                 <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
@@ -195,19 +242,19 @@ export default function BookCourtPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {timeSlots.map((slot) => {
                   const booked = isSlotBooked(slot.start);
-                  const selected = selectedSlot?.start === slot.start;
+                  const selected = isSlotSelected(slot.start);
                   return (
                     <button
                       key={slot.start}
                       disabled={booked}
-                      onClick={() => setSelectedSlot(slot)}
+                      onClick={() => toggleSlotSelection(slot)}
                       className={cn(
                         "rounded-lg border p-3 text-center transition-all",
                         booked
                           ? "cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
                           : selected
-                            ? "border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary"
-                            : "border-slate-200 hover:border-primary hover:text-primary dark:border-slate-700 dark:text-slate-300 dark:hover:border-primary"
+                            ? "border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary shadow-sm"
+                            : "border-slate-200 hover:border-primary hover:text-primary bg-white dark:bg-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-primary"
                       )}
                     >
                       {slot.label}
@@ -270,9 +317,9 @@ export default function BookCourtPage() {
             
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
-                <p className="text-sm text-slate-500">Tiền sân ({selectedSlot ? "1 giờ" : "0 giờ"})</p>
+                <p className="text-sm text-slate-500">Tiền sân ({selectedSlots.length} giờ)</p>
                 <p className="font-semibold dark:text-white">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedSlot ? court.pricePerHour : 0)}
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedSlots.length * court.pricePerHour)}
                 </p>
               </div>
               
@@ -295,7 +342,7 @@ export default function BookCourtPage() {
 
             <Button 
               className="w-full font-semibold text-primary-foreground h-12"
-              disabled={!selectedSlot || isSubmitting}
+              disabled={selectedSlots.length === 0 || isSubmitting}
               onClick={handleBook}
             >
               {isSubmitting ? "Đang xử lý..." : "Xác nhận đặt sân"} 
@@ -307,3 +354,4 @@ export default function BookCourtPage() {
     </MainContainer>
   );
 }
+

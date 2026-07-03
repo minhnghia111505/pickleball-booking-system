@@ -10,6 +10,8 @@ import java.time.LocalDate;
 public interface BookingService {
 
     BookingResponse createBooking(String userEmail, CreateBookingRequest request);
+
+    java.util.List<BookingResponse> createBulkBookings(String userEmail, com.pickleball.backend.modules.booking.dto.request.BulkCreateBookingRequest request);
     
     void payBooking(String userEmail, Long bookingId);
 
