@@ -31,6 +31,12 @@ public class Club {
     @Column(name = "logo_url", length = 512)
     private String logoUrl;
 
+    @Column(name = "opening_time")
+    private java.time.LocalTime openTime;
+
+    @Column(name = "closing_time")
+    private java.time.LocalTime closeTime;
+
     @Column(nullable = false, length = 20)
     private String status;
 

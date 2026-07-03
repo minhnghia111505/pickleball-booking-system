@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Boolean existsByEmail(String email);
+    org.springframework.data.domain.Page<User> findByClubIdAndRole(Long clubId, com.pickleball.backend.modules.user.entity.UserRole role, org.springframework.data.domain.Pageable pageable);
 }

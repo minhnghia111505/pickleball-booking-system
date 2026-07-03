@@ -18,7 +18,7 @@ public class BookingTimeValidator {
         this.bookingProperties = bookingProperties;
     }
 
-    public void validate(LocalDate bookingDate, LocalTime startTime, LocalTime endTime) {
+    public void validate(com.pickleball.backend.modules.club.entity.Club club, LocalDate bookingDate, LocalTime startTime, LocalTime endTime) {
         if (bookingDate == null || startTime == null || endTime == null) {
             throw new BusinessException("Booking date and time range are required");
         }
@@ -34,13 +34,15 @@ public class BookingTimeValidator {
             );
         }
 
-        if (startTime.isBefore(bookingProperties.openingTime())
-                || endTime.isAfter(bookingProperties.closingTime())) {
+        LocalTime openTime = (club != null && club.getOpenTime() != null) ? club.getOpenTime() : bookingProperties.openingTime();
+        LocalTime closeTime = (club != null && club.getCloseTime() != null) ? club.getCloseTime() : bookingProperties.closingTime();
+
+        if (startTime.isBefore(openTime) || endTime.isAfter(closeTime)) {
             throw new BusinessException(
                     "Booking time must be within operating hours "
-                            + bookingProperties.openingTime()
+                            + openTime
                             + " - "
-                            + bookingProperties.closingTime()
+                            + closeTime
             );
         }
 

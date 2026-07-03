@@ -5,7 +5,7 @@ import { bookingService } from "@/services/booking.service";
 import { Booking } from "@/types/booking.type";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Search, XCircle, CreditCard } from "lucide-react";
+import { Search, XCircle, CreditCard, CheckCircle } from "lucide-react";
 
 export default function ManagerBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -33,6 +33,15 @@ export default function ManagerBookingsPage() {
       toast.success("Đã hủy đơn đặt sân");
       fetchBookings();
     } catch { toast.error("Không thể hủy"); }
+  };
+
+  const handlePay = async (id: number) => {
+    if (!confirm("Xác nhận khách đã thanh toán tiền sân?")) return;
+    try {
+      await bookingService.payBooking(id);
+      toast.success("Đã xác nhận thanh toán thành công");
+      fetchBookings();
+    } catch { toast.error("Không thể xác nhận thanh toán"); }
   };
 
   const filtered = bookings.filter((b) =>
@@ -110,9 +119,16 @@ export default function ManagerBookingsPage() {
                     </td>
                     <td className="px-5 py-3 text-right">
                       {b.bookingStatus !== "CANCELLED" && b.bookingStatus !== "COMPLETED" && (
-                        <button onClick={() => handleCancel(b.id)} className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium">
-                          <XCircle className="h-3.5 w-3.5" /> Hủy
-                        </button>
+                        <div className="flex justify-end gap-3">
+                          {b.paymentStatus !== "PAID" && (
+                            <button onClick={() => handlePay(b.id)} className="inline-flex items-center gap-1 text-xs text-primary hover:text-emerald-600 font-medium">
+                              <CheckCircle className="h-3.5 w-3.5" /> Xác nhận TT
+                            </button>
+                          )}
+                          <button onClick={() => handleCancel(b.id)} className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium">
+                            <XCircle className="h-3.5 w-3.5" /> Hủy
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>

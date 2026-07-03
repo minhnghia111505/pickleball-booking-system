@@ -116,7 +116,7 @@ export default function MyBookingsPage() {
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white">{booking.court.name}</h3>
                       <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
                         <MapPin className="h-3.5 w-3.5" />
-                        {booking.court.location}
+                        {booking.court.address}
                       </div>
                     </div>
                   </div>

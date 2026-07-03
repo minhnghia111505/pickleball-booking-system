@@ -86,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
         User user = findActiveUser(userEmail);
         Court court = findBookableCourt(request.getCourtId());
 
-        bookingTimeValidator.validate(request.getBookingDate(), request.getStartTime(), request.getEndTime());
+        bookingTimeValidator.validate(court.getClub(), request.getBookingDate(), request.getStartTime(), request.getEndTime());
 
         bookingOverlapChecker.assertNoOverlapWithLock(
                 court.getId(),

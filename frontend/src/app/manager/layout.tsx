@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils/cn";
 const managerNav = [
   { href: ROUTES.MANAGER.DASHBOARD, label: "Tổng quan", icon: LayoutDashboard },
   { href: ROUTES.MANAGER.COURTS, label: "Quản lý Sân", icon: Activity },
+  { href: "/manager/schedule", label: "Lịch bận", icon: CalendarDays },
   { href: ROUTES.MANAGER.BOOKINGS, label: "Đơn Đặt Sân", icon: CalendarDays },
   { href: "/manager/services", label: "Dịch vụ", icon: Activity },
+  { href: "/manager/staff", label: "Nhân viên", icon: Activity },
   { href: "/manager/statistics", label: "Thống kê", icon: BarChart2 },
 ];
 

@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS clubs (
     description TEXT,
     logo_url    VARCHAR(512),
     status      VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
+    opening_time TIME(6)      NOT NULL DEFAULT '06:00:00',
+    closing_time TIME(6)      NOT NULL DEFAULT '22:00:00',
     created_at  DATETIME(6)  NOT NULL,
     updated_at  DATETIME(6)  NOT NULL,
     created_by  VARCHAR(255),
@@ -141,9 +143,9 @@ CREATE TABLE IF NOT EXISTS booking_services (
 -- =========================================================================
 
 -- 1. MOCK CLUBS
-INSERT INTO clubs (name, address, phone, email, description, status, created_at, updated_at) VALUES 
-('Pickleball Master Club', '123 Cầu Giấy, Hà Nội', '0988111222', 'contact@masterclub.com', 'Tổ hợp 4 sân Pickleball chuẩn quốc tế có mái che.', 'ACTIVE', NOW(), NOW()),
-('Sunrise Pickleball', '456 Nguyễn Hữu Thọ, Quận 7, TP.HCM', '0977333444', 'hello@sunrisepb.com', 'Sân chơi ngoài trời thoáng mát, không gian mở.', 'ACTIVE', NOW(), NOW());
+INSERT INTO clubs (name, address, phone, email, description, status, opening_time, closing_time, created_at, updated_at) VALUES 
+('Pickleball Master Club', '123 Cầu Giấy, Hà Nội', '0988111222', 'contact@masterclub.com', 'Tổ hợp 4 sân Pickleball chuẩn quốc tế có mái che.', 'ACTIVE', '06:00:00', '22:00:00', NOW(), NOW()),
+('Sunrise Pickleball', '456 Nguyễn Hữu Thọ, Quận 7, TP.HCM', '0977333444', 'hello@sunrisepb.com', 'Sân chơi ngoài trời thoáng mát, không gian mở.', 'ACTIVE', '05:00:00', '23:00:00', NOW(), NOW());
 
 -- 2. MOCK USERS
 -- Super Admin (Không thuộc Club nào)

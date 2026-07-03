@@ -13,8 +13,7 @@ export interface BookingUserSummary {
 export interface BookingCourtSummary {
   id: number;
   name: string;
-  location: string;
-  pricePerHour: number;
+  address: string;
 }
 
 export interface Booking {

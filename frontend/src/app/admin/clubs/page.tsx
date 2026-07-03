@@ -23,7 +23,7 @@ export default function AdminClubsPage() {
     const load = async () => {
       try {
         const res = await apiClient.get("/clubs") as any;
-        setClubs(res.data ?? []);
+        setClubs(res.data?.content ?? []);
       } catch {
         toast.error("Không thể tải danh sách câu lạc bộ. API /clubs chưa được tạo.");
         setClubs([]);

@@ -14,4 +14,6 @@ public class ClubResponse {
     private String description;
     private String logoUrl;
     private String status;
+    private java.time.LocalTime openTime;
+    private java.time.LocalTime closeTime;
 }

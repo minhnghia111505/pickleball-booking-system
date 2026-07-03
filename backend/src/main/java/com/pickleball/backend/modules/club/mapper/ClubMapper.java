@@ -14,6 +14,8 @@ public class ClubMapper {
                 .description(club.getDescription())
                 .logoUrl(club.getLogoUrl())
                 .status(club.getStatus())
+                .openTime(club.getOpenTime())
+                .closeTime(club.getCloseTime())
                 .build();
     }
 }

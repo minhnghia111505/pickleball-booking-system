@@ -16,6 +16,8 @@ import java.util.List;
 
 public interface ScheduleLockRepository extends JpaRepository<ScheduleLock, Long> {
 
+    org.springframework.data.domain.Page<ScheduleLock> findByCourtId(Long courtId, org.springframework.data.domain.Pageable pageable);
+
     @EntityGraph(EntityGraphNames.SCHEDULE_LOCK_WITH_COURT)
     @Query("SELECT sl FROM ScheduleLock sl WHERE sl.id = :id")
     Optional<ScheduleLock> findByIdWithCourt(@Param("id") Long id);
