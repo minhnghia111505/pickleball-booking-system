@@ -36,10 +36,13 @@ public class CourtController {
     public ResponseEntity<ApiResponse<PageResponse<CourtResponse>>> getCourts(
             @RequestParam(required = false) Long clubId,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(required = false) Integer size
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sort
     ) {
-        PageResponse<CourtResponse> courts = courtService.getCourts(clubId, search, page, size);
+        PageResponse<CourtResponse> courts = courtService.getCourts(clubId, search, minPrice, maxPrice, page, size, sort);
         return ResponseEntity.ok(ApiResponse.success("Courts retrieved successfully", courts));
     }
 

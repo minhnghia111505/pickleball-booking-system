@@ -41,19 +41,24 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<CourtResponse> getCourts(Long clubId, String search, int page, Integer size) {
-        Pageable pageable = PageableUtils.create(page, size, paginationProperties);
-        Page<Court> courtPage;
-        
-        if (clubId != null) {
-            courtPage = hasSearch(search)
-                    ? courtRepository.findByClubIdAndNameContainingIgnoreCase(clubId, search.trim(), pageable)
-                    : courtRepository.findByClubId(clubId, pageable);
-        } else {
-            courtPage = hasSearch(search)
-                    ? courtRepository.findByNameContainingIgnoreCase(search.trim(), pageable)
-                    : courtRepository.findAll(pageable);
+    public PageResponse<CourtResponse> getCourts(Long clubId, String search, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, int page, Integer size, String sortParam) {
+        org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "id");
+        if (StringUtils.hasText(sortParam)) {
+            String[] parts = sortParam.split(",");
+            if (parts.length == 2) {
+                org.springframework.data.domain.Sort.Direction dir = "desc".equalsIgnoreCase(parts[1]) ? org.springframework.data.domain.Sort.Direction.DESC : org.springframework.data.domain.Sort.Direction.ASC;
+                sort = org.springframework.data.domain.Sort.by(dir, parts[0]);
+            }
         }
+        Pageable pageable = PageableUtils.createWithSort(page, size, sort, paginationProperties);
+        
+        Page<Court> courtPage = courtRepository.findCourtsWithFilters(
+                clubId,
+                hasSearch(search) ? search.trim() : null,
+                minPrice,
+                maxPrice,
+                pageable
+        );
 
         return PageResponse.from(courtPage.map(courtMapper::toResponse));
     }

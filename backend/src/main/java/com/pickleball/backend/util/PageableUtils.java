@@ -16,6 +16,12 @@ public final class PageableUtils {
         return PageRequest.of(normalizedPage, pageSize, Sort.by(Sort.Direction.ASC, "id"));
     }
 
+    public static Pageable createWithSort(int page, Integer size, Sort sort, PaginationProperties paginationProperties) {
+        int normalizedPage = Math.max(page, 0);
+        int pageSize = resolvePageSize(size, paginationProperties);
+        return PageRequest.of(normalizedPage, pageSize, sort);
+    }
+
     private static int resolvePageSize(Integer size, PaginationProperties paginationProperties) {
         if (size == null) {
             return paginationProperties.defaultPageSize();
