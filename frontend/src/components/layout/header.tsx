@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Map, Heart } from "lucide-react";
 
 function getRoleDashboardLink(role: string): { href: string; label: string } | null {
   switch (role) {
@@ -50,9 +50,19 @@ export function Header() {
               aria-label="Main navigation"
             >
               <Link href={ROUTES.HOME} className="transition-colors hover:text-foreground">Trang chủ</Link>
+              <Link href={`${ROUTES.COURTS}?view=map`} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <Map className="h-4 w-4" />
+                Bản đồ
+              </Link>
               <Link href={ROUTES.COURTS} className="transition-colors hover:text-foreground">Sân</Link>
               {isAuthenticated && (
-                <Link href={ROUTES.BOOKINGS} className="transition-colors hover:text-foreground">Lịch sử đặt sân</Link>
+                <>
+                  <Link href={ROUTES.BOOKINGS} className="transition-colors hover:text-foreground">Lịch sử đặt sân</Link>
+                  <Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                    <Heart className="h-4 w-4" />
+                    Yêu thích
+                  </Link>
+                </>
               )}
             </nav>
           )}
@@ -90,9 +100,14 @@ export function Header() {
                       />
                     )}
                     {isCustomerRole && (
-                      <DropdownMenuItem
-                        render={<Link href={ROUTES.BOOKINGS}>Lịch sử đặt sân</Link>}
-                      />
+                      <>
+                        <DropdownMenuItem
+                          render={<Link href={ROUTES.BOOKINGS}>Lịch sử đặt sân</Link>}
+                        />
+                        <DropdownMenuItem
+                          render={<Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5"><Heart className="h-4 w-4 fill-red-500 text-red-500" />Yêu thích</Link>}
+                        />
+                      </>
                     )}
                     <DropdownMenuItem
                       render={<Link href="/profile">Hồ sơ cá nhân</Link>}

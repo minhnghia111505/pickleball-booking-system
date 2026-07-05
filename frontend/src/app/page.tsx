@@ -1,12 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { MainContainer } from "@/components/layout/main-container";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
-import { Activity, Calendar, Trophy, MapPin, Users, Search, Map, Building2 } from "lucide-react";
+import { Activity, MapPin, Search, Building2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { clubService } from "@/services/club.service";
+import { courtService } from "@/services/court.service";
+
+const CourtMap = dynamic(() => import("@/components/court/CourtMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[480px] items-center justify-center rounded-2xl border border-slate-100 bg-slate-50">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-r-transparent" />
+        <p className="text-sm text-slate-500">Đang tải bản đồ...</p>
+      </div>
+    </div>
+  ),
+});
 
 export default function HomePage() {
   const { data: clubs, isLoading } = useQuery({
@@ -14,10 +28,15 @@ export default function HomePage() {
     queryFn: () => clubService.getClubs({ size: 6 }),
   });
 
+  const { data: courtsData } = useQuery({
+    queryKey: ["courts-map-home"],
+    queryFn: () => courtService.getCourts({ size: 100 }),
+  });
+
   return (
     <div className="flex min-h-screen flex-col bg-[#f9fafb]">
       {/* 1. HERO SECTION (Dark Mode Vibe with Neon Green Gradient) */}
-      <section 
+      <section
         className="relative pt-24 pb-48 sm:pt-32 sm:pb-56 bg-slate-950 overflow-hidden text-white"
         style={{ clipPath: 'ellipse(180% 100% at 50% 0%)' }}
       >
@@ -43,8 +62,40 @@ export default function HomePage() {
         </MainContainer>
       </section>
 
-      {/* 2. DYNAMIC CLUBS SECTION */}
-      <section className="-mt-20 sm:-mt-24 pb-24 relative z-20" id="features">
+      {/* 2. MAP SECTION */}
+      <section className="-mt-20 sm:-mt-24 pb-12 relative z-20">
+        <MainContainer>
+          <div className="bg-white rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100 p-8 sm:p-10 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-6">
+              <div>
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🗺️</span>
+                  <h2 className="text-2xl font-bold text-slate-900">Bản đồ Sân Pickleball</h2>
+                </div>
+                <p className="text-slate-500">Khám phá sân gần bạn nhất trên bản đồ tương tác</p>
+              </div>
+              <Button asChild variant="default" className="w-full sm:w-auto rounded-full font-semibold">
+                <Link href={ROUTES.COURTS}>Xem tất cả sân</Link>
+              </Button>
+            </div>
+            <CourtMap
+              courts={(courtsData?.content ?? []).map((court) => ({
+                id: court.id,
+                name: court.name,
+                address: court.address,
+                pricePerHour: Number(court.pricePerHour),
+                imageUrl: court.imageUrl,
+                latitude: (court as any).latitude,
+                longitude: (court as any).longitude,
+                status: String(court.status),
+              }))}
+            />
+          </div>
+        </MainContainer>
+      </section>
+
+      {/* 3. DYNAMIC CLUBS SECTION */}
+      <section className="pb-24 relative z-10" id="features">
         <MainContainer>
           <div className="bg-white rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100 p-8 sm:p-10 mb-16">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-100 pb-6">

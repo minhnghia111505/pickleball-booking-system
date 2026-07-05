@@ -35,6 +35,8 @@ public class CourtMapper {
                 .imageUrl(court.getImageUrl())
                 .clubId(court.getClub() != null ? court.getClub().getId() : null)
                 .clubName(court.getClub() != null ? court.getClub().getName() : null)
+                .latitude(court.getClub() != null ? court.getClub().getLatitude() : null)
+                .longitude(court.getClub() != null ? court.getClub().getLongitude() : null)
                 .createdAt(court.getCreatedAt())
                 .updatedAt(court.getUpdatedAt())
                 .build();

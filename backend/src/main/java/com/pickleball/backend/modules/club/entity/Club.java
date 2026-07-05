@@ -31,6 +31,12 @@ public class Club {
     @Column(name = "logo_url", length = 512)
     private String logoUrl;
 
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
     @Column(name = "opening_time")
     private java.time.LocalTime openTime;
 

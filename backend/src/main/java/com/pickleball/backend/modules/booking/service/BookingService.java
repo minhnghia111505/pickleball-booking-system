@@ -17,7 +17,7 @@ public interface BookingService {
 
     void cancelBooking(String userEmail, Long bookingId);
 
-    PageResponse<BookingResponse> getMyBookings(String userEmail, int page, Integer size);
+    PageResponse<BookingResponse> getMyBookings(String userEmail, com.pickleball.backend.modules.booking.entity.BookingStatus status, int page, Integer size);
 
     PageResponse<BookingResponse> getClubBookings(String userEmail, int page, Integer size);
 

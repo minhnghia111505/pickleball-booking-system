@@ -13,7 +13,7 @@ export const bookingService = {
     return res.data;
   },
 
-  getMyBookings: async (params?: { page?: number; size?: number }) => {
+  getMyBookings: async (params?: { page?: number; size?: number; status?: string }) => {
     const res = await apiClient.get<{ data: PageResponse<Booking> }>("/bookings/my-bookings", {
       params,
     }) as unknown as { data: PageResponse<Booking> };

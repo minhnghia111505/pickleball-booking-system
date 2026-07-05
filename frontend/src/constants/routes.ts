@@ -4,6 +4,7 @@ export const ROUTES = {
   REGISTER: "/register",
   COURTS: "/courts",
   BOOKINGS: "/bookings",
+  FAVORITES: "/favorites",
   PROFILE: "/profile",
 
   STAFF: {

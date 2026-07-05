@@ -20,6 +20,8 @@ public class CourtResponse {
     private String imageUrl;
     private Long clubId;
     private String clubName;
+    private Double latitude;
+    private Double longitude;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

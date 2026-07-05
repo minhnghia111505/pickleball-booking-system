@@ -57,6 +57,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
     Page<Booking> findByUser_IdOrderByBookingDateDescStartTimeDesc(Long userId, Pageable pageable);
 
+    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND (:status IS NULL OR b.bookingStatus = :status) ORDER BY b.bookingDate DESC, b.startTime DESC")
+    @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
+    Page<Booking> findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") BookingStatus status, Pageable pageable);
+
     @EntityGraph(EntityGraphNames.BOOKING_WITH_DETAILS)
     Page<Booking> findByClub_IdOrderByBookingDateDescStartTimeDesc(Long clubId, Pageable pageable);
 

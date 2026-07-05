@@ -73,14 +73,15 @@ public class BookingController {
     }
 
     @GetMapping("/my-bookings")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<PageResponse<BookingResponse>>> getMyBookings(
+            @RequestParam(required = false) com.pickleball.backend.modules.booking.entity.BookingStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size
     ) {
         String email = SecurityUtils.getCurrentUserEmail();
-        PageResponse<BookingResponse> bookings = bookingService.getMyBookings(email, page, size);
-        return ResponseEntity.ok(ApiResponse.success("Bookings retrieved successfully", bookings));
+        PageResponse<BookingResponse> bookings = bookingService.getMyBookings(email, status, page, size);
+        return ResponseEntity.ok(ApiResponse.success("My bookings retrieved successfully", bookings));
     }
 
     @GetMapping("/club")

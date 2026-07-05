@@ -210,11 +210,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<BookingResponse> getMyBookings(String userEmail, int page, Integer size) {
+    public PageResponse<BookingResponse> getMyBookings(String userEmail, BookingStatus status, int page, Integer size) {
         User user = findActiveUser(userEmail);
         Pageable pageable = PageableUtils.create(page, size, paginationProperties);
-        Page<Booking> bookingPage = bookingRepository.findByUser_IdOrderByBookingDateDescStartTimeDesc(
-                user.getId(), pageable
+        Page<Booking> bookingPage = bookingRepository.findByUserIdAndStatus(
+                user.getId(), status, pageable
         );
         return PageResponse.from(bookingPage.map(bookingMapper::toResponse));
     }
