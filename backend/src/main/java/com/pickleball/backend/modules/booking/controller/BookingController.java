@@ -96,7 +96,6 @@ public class BookingController {
     }
 
     @GetMapping("/court/{courtId}")
-    @PreAuthorize("hasAnyRole('" + SecurityRoles.USER + "', '" + SecurityRoles.STAFF + "', '" + SecurityRoles.MANAGER + "', '" + SecurityRoles.SUPER_ADMIN + "')")
     public ResponseEntity<ApiResponse<CourtScheduleResponse>> getCourtSchedule(
             @PathVariable Long courtId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date

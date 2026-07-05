@@ -75,7 +75,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/courts", "/courts/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/courts", "/courts/**", "/clubs", "/clubs/**", "/bookings/court/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {

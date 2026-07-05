@@ -8,6 +8,16 @@ import { MainContainer } from "@/components/layout/main-container";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import { Star, MapPin, Coffee, Car, Wifi, ShieldCheck, CheckCircle2 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const MiniMap = dynamic(() => import("@/components/court/MiniMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-400">
+      Đang tải bản đồ...
+    </div>
+  ),
+});
 
 export default function CourtDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -116,11 +126,14 @@ export default function CourtDetailPage({ params }: { params: Promise<{ id: stri
                 <MapPin className="h-5 w-5 text-primary shrink-0" />
                 <span>{court.address}</span>
               </div>
-              <div className="aspect-[21/9] bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden relative border">
-                {/* Mock Map Image */}
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-slate-400">
-                   <p>[Bản đồ Google Maps]</p>
-                </div>
+              <div className="aspect-[21/9] bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden relative border z-0">
+                {(court as any).latitude && (court as any).longitude ? (
+                  <MiniMap lat={(court as any).latitude} lng={(court as any).longitude} />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800 text-slate-400">
+                     <p>Chưa có tọa độ bản đồ</p>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils/cn";
+import { useAuthStore } from "@/stores/auth.store";
 
 const GENERATE_SLOTS = () => {
   const slots = [];
@@ -30,6 +31,7 @@ export default function BookCourtPage() {
   const params = useParams();
   const router = useRouter();
   const courtId = Number(params?.id);
+  const { user } = useAuthStore();
 
   const [court, setCourt] = useState<Court | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
@@ -83,6 +85,19 @@ export default function BookCourtPage() {
     return selectedSlots.some((slot) => slot.start === startTime);
   };
 
+  const isSlotPassed = (startTime: string) => {
+    const now = new Date();
+    const today = format(now, "yyyy-MM-dd");
+    if (selectedDate < today) return true;
+    if (selectedDate === today) {
+      const currentHour = now.getHours();
+      const slotHour = parseInt(startTime.split(":")[0], 10);
+      // Disable if the slot's starting hour has already passed or is the current hour
+      return slotHour <= currentHour;
+    }
+    return false;
+  };
+
   const toggleSlotSelection = (slot: { start: string; end: string }) => {
     setSelectedSlots((prev) => {
       const exists = prev.some((s) => s.start === slot.start);
@@ -125,6 +140,12 @@ export default function BookCourtPage() {
   const totalAmount = (selectedSlots.length * (court?.pricePerHour || 0)) + calculateServicesTotal();
 
   const handleBook = async () => {
+    if (!user) {
+      toast.error("Vui lòng đăng nhập để đặt sân");
+      router.push("/login");
+      return;
+    }
+    
     if (selectedSlots.length === 0) return;
     try {
       setIsSubmitting(true);
@@ -228,10 +249,11 @@ export default function BookCourtPage() {
                 <Clock className="h-5 w-5 text-primary" /> Chọn khung giờ
               </h2>
               {/* Legends */}
-              <div className="flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-white border border-slate-200 dark:bg-slate-800"></div>Trống</div>
-                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-primary/20 border border-primary"></div>Đang chọn</div>
-                <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-slate-100 border border-slate-200 dark:bg-slate-900"></div>Đã đặt/Khóa</div>
+              <div className="flex flex-wrap items-center gap-4 text-sm font-medium">
+                <div className="flex items-center gap-1.5"><div className="w-4 h-4 rounded border border-slate-200 bg-white dark:bg-slate-800"></div>Trống</div>
+                <div className="flex items-center gap-1.5"><div className="w-4 h-4 rounded border border-primary bg-primary/10"></div>Đang chọn</div>
+                <div className="flex items-center gap-1.5"><div className="w-4 h-4 rounded border border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-900"></div>Đã đặt</div>
+                <div className="flex items-center gap-1.5"><div className="w-4 h-4 rounded border border-slate-200 bg-slate-200 opacity-50 dark:bg-slate-700"></div>Đã qua</div>
               </div>
             </div>
             {isLoading ? (
@@ -242,19 +264,23 @@ export default function BookCourtPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {timeSlots.map((slot) => {
                   const booked = isSlotBooked(slot.start);
+                  const passed = isSlotPassed(slot.start);
                   const selected = isSlotSelected(slot.start);
+                  const disabled = booked || passed;
                   return (
                     <button
                       key={slot.start}
-                      disabled={booked}
+                      disabled={disabled}
                       onClick={() => toggleSlotSelection(slot)}
                       className={cn(
                         "rounded-lg border p-3 text-center transition-all",
-                        booked
-                          ? "cursor-not-allowed border-slate-100 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
-                          : selected
-                            ? "border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary shadow-sm"
-                            : "border-slate-200 hover:border-primary hover:text-primary bg-white dark:bg-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-primary"
+                        passed
+                          ? "cursor-not-allowed border-slate-200 bg-slate-200/50 text-slate-400 opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-600"
+                          : booked
+                            ? "cursor-not-allowed border-red-200 bg-red-50 text-red-400 line-through dark:border-red-900/50 dark:bg-red-950 dark:text-red-500"
+                            : selected
+                              ? "border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary shadow-sm"
+                              : "border-slate-200 hover:border-primary hover:bg-primary/5 hover:text-primary bg-white dark:bg-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-primary"
                       )}
                     >
                       {slot.label}

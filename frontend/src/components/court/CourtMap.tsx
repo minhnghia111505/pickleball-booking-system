@@ -17,22 +17,35 @@ const fixLeafletIcon = () => {
 const createPricePin = (price: string, selected: boolean) =>
   L.divIcon({
     className: "",
+    iconSize: [40, 40],
+    iconAnchor: [20, 36],
     html: `
       <div style="
-        background: ${selected ? "#dc2626" : "#16a34a"};
-        color: white;
-        border: 2.5px solid white;
-        border-radius: 20px;
-        padding: 5px 11px;
-        font-size: 12px;
-        font-weight: 700;
-        white-space: nowrap;
-        box-shadow: ${selected ? "0 4px 16px rgba(220,38,38,0.5)" : "0 2px 8px rgba(0,0,0,0.3)"};
-        transform: ${selected ? "scale(1.15)" : "scale(1)"};
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+        transform: ${selected ? "scale(1.2) translateY(-4px)" : "scale(1)"};
         transition: all 0.2s;
-      ">${price}</div>
+      ">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 64 64">
+          <g transform="rotate(35 32 32)">
+            <rect x="28" y="42" width="8" height="20" rx="2" fill="#1f2937" />
+            <path d="M 28 46 L 36 44 M 28 51 L 36 49 M 28 56 L 36 54" stroke="#374151" stroke-width="2" />
+            <rect x="16" y="4" width="32" height="40" rx="14" fill="#111827" />
+            <rect x="18" y="6" width="28" height="36" rx="12" fill="${selected ? '#dc2626' : '#16a34a'}" />
+            <circle cx="32" cy="24" r="8" fill="${selected ? '#b91c1c' : '#15803d'}" />
+            <circle cx="32" cy="24" r="5" fill="${selected ? '#991b1b' : '#166534'}" />
+          </g>
+          <circle cx="14" cy="48" r="8" fill="#a3e635" stroke="#111827" stroke-width="1.5" />
+          <circle cx="11" cy="45" r="1.5" fill="#3f6212"/>
+          <circle cx="16" cy="46" r="1.5" fill="#3f6212"/>
+          <circle cx="13.5" cy="49" r="1.5" fill="#3f6212"/>
+          <circle cx="10" cy="49" r="1" fill="#3f6212"/>
+          <circle cx="16.5" cy="50" r="1" fill="#3f6212"/>
+        </svg>
+      </div>
     `,
-    iconAnchor: [40, 20],
   });
 
 function FitBounds({ courts }: { courts: CourtMapPoint[] }) {

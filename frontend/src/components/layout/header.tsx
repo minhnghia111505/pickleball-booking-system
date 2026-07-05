@@ -6,6 +6,8 @@ import { ROUTES } from "@/constants/routes";
 import { MainContainer } from "@/components/layout/main-container";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/stores/auth.store";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,7 +18,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { LayoutDashboard, Map, Heart, Home, Activity, Calendar } from "lucide-react";
+import { LayoutDashboard, Map, Heart, Home, Activity, Calendar, User as UserIcon, LogOut, ChevronDown } from "lucide-react";
 
 function getRoleDashboardLink(role: string): { href: string; label: string } | null {
   switch (role) {
@@ -29,8 +31,15 @@ function getRoleDashboardLink(role: string): { href: string; label: string } | n
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuthStore();
+  const router = useRouter();
   const isCustomerRole = !user?.role || user.role === "ROLE_USER";
   const dashboardLink = user ? getRoleDashboardLink(user.role) : null;
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Đăng xuất thành công");
+    router.push(ROUTES.HOME);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-white">
@@ -94,38 +103,48 @@ export function Header() {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button variant="outline" className="gap-2">
-                      {user.fullName}
+                    <Button variant="ghost" className="gap-2 px-2 hover:bg-slate-100 dark:hover:bg-slate-800">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <UserIcon className="h-4 w-4" />
+                      </div>
+                      <span className="hidden md:inline-block font-medium">{user.fullName}</span>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   }
                 />
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.fullName}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {dashboardLink && (
                       <DropdownMenuItem
-                        render={<Link href={dashboardLink.href}>{dashboardLink.label}</Link>}
+                        render={<Link href={dashboardLink.href} className="flex items-center gap-2"><LayoutDashboard className="h-4 w-4" />{dashboardLink.label}</Link>}
                       />
                     )}
                     {isCustomerRole && (
                       <>
                         <DropdownMenuItem
-                          render={<Link href={ROUTES.BOOKINGS}>Lịch sử đặt sân</Link>}
+                          render={<Link href={ROUTES.BOOKINGS} className="flex items-center gap-2"><Calendar className="h-4 w-4" />Lịch sử đặt sân</Link>}
                         />
                         <DropdownMenuItem
-                          render={<Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5"><Heart className="h-4 w-4 fill-red-500 text-red-500" />Yêu thích</Link>}
+                          render={<Link href={ROUTES.FAVORITES} className="flex items-center gap-2"><Heart className="h-4 w-4" />Yêu thích</Link>}
                         />
                       </>
                     )}
                     <DropdownMenuItem
-                      render={<Link href="/profile">Hồ sơ cá nhân</Link>}
+                      render={<Link href="/profile" className="flex items-center gap-2"><UserIcon className="h-4 w-4" />Hồ sơ cá nhân</Link>}
                     />
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="text-red-500">
-                      Đăng xuất
-                    </DropdownMenuItem>
                   </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-500 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950 cursor-pointer flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    Đăng xuất
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
