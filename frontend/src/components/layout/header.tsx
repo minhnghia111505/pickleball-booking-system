@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
-import { LayoutDashboard, Map, Heart } from "lucide-react";
+import { LayoutDashboard, Map, Heart, Home, Activity, Calendar } from "lucide-react";
 
 function getRoleDashboardLink(role: string): { href: string; label: string } | null {
   switch (role) {
@@ -49,15 +49,24 @@ export function Header() {
               className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex"
               aria-label="Main navigation"
             >
-              <Link href={ROUTES.HOME} className="transition-colors hover:text-foreground">Trang chủ</Link>
-              <Link href={`${ROUTES.COURTS}?view=map`} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+              <Link href={ROUTES.HOME} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <Home className="h-4 w-4" />
+                Trang chủ
+              </Link>
+              <Link href={ROUTES.MAP} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
                 <Map className="h-4 w-4" />
                 Bản đồ
               </Link>
-              <Link href={ROUTES.COURTS} className="transition-colors hover:text-foreground">Sân</Link>
+              <Link href={ROUTES.COURTS} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <Activity className="h-4 w-4" />
+                Sân
+              </Link>
               {isAuthenticated && (
                 <>
-                  <Link href={ROUTES.BOOKINGS} className="transition-colors hover:text-foreground">Lịch sử đặt sân</Link>
+                  <Link href={ROUTES.BOOKINGS} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                    <Calendar className="h-4 w-4" />
+                    Lịch sử đặt sân
+                  </Link>
                   <Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
                     <Heart className="h-4 w-4" />
                     Yêu thích
