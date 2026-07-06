@@ -22,6 +22,9 @@ public class CourtResponse {
     private String clubName;
     private Double latitude;
     private Double longitude;
+    private Double rating;
+    private Integer reviewsCount;
+    private String googleMapUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

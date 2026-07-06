@@ -11,20 +11,25 @@ USE pickleball_db;
 
 -- 1. CLUBS (Câu lạc bộ/Cơ sở)
 CREATE TABLE IF NOT EXISTS clubs (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(255) NOT NULL,
-    address     VARCHAR(500) NOT NULL,
-    phone       VARCHAR(20),
-    email       VARCHAR(255),
-    description TEXT,
-    logo_url    VARCHAR(512),
-    status      VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
-    opening_time TIME(6)      NOT NULL DEFAULT '06:00:00',
-    closing_time TIME(6)      NOT NULL DEFAULT '22:00:00',
-    created_at  DATETIME(6)  NOT NULL,
-    updated_at  DATETIME(6)  NOT NULL,
-    created_by  VARCHAR(255),
-    updated_by  VARCHAR(255)
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    address         VARCHAR(500) NOT NULL,
+    phone           VARCHAR(20),
+    email           VARCHAR(255),
+    description     TEXT,
+    logo_url        VARCHAR(512),
+    google_map_url  VARCHAR(1000),
+    rating          DOUBLE,
+    reviews_count   INT,
+    latitude        DOUBLE,
+    longitude       DOUBLE,
+    status          VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
+    opening_time    TIME(6)      NOT NULL DEFAULT '06:00:00',
+    closing_time    TIME(6)      NOT NULL DEFAULT '22:00:00',
+    created_at      DATETIME(6)  NOT NULL,
+    updated_at      DATETIME(6)  NOT NULL,
+    created_by      VARCHAR(255),
+    updated_by      VARCHAR(255)
 );
 
 -- 2. USERS (Người dùng, bao gồm cả Khách hàng, Nhân viên, Chủ sân, Super Admin)

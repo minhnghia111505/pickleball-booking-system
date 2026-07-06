@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 
@@ -73,6 +73,50 @@ function PanToSelected({ court }: { court: CourtMapPoint | null }) {
   return null;
 }
 
+function LocateControl() {
+  const map = useMap();
+  const [loading, setLoading] = useState(false);
+
+  const handleLocate = () => {
+    setLoading(true);
+    map.locate({ setView: true, maxZoom: 14 });
+    map.once("locationfound", (e) => {
+      setLoading(false);
+      // Tạo marker vị trí hiện tại
+      const userIcon = L.divIcon({
+        className: "",
+        html: `<div style="width: 20px; height: 20px; background-color: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+      L.marker(e.latlng, { icon: userIcon }).addTo(map).bindPopup("Bạn đang ở đây!").openPopup();
+    });
+    map.once("locationerror", () => {
+      setLoading(false);
+      alert("Không thể lấy vị trí của bạn. Vui lòng kiểm tra quyền truy cập vị trí trên trình duyệt.");
+    });
+  };
+
+  return (
+    <div className="leaflet-bottom leaflet-right" style={{ bottom: '60px', right: '10px' }}>
+      <div className="leaflet-control leaflet-bar shadow-md">
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleLocate();
+          }}
+          title="Vị trí của tôi"
+          className="flex h-10 w-10 items-center justify-center bg-white hover:bg-slate-50 transition-colors"
+          style={{ border: 'none', cursor: 'pointer', fontSize: '20px' }}
+        >
+          {loading ? "⏳" : "📍"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export interface CourtMapPoint {
   id: number;
   name: string;
@@ -82,6 +126,9 @@ export interface CourtMapPoint {
   latitude?: number | null;
   longitude?: number | null;
   status?: string;
+  rating?: number | null;
+  reviewsCount?: number | null;
+  googleMapUrl?: string | null;
 }
 
 interface CourtMapPanelProps {
@@ -91,11 +138,19 @@ interface CourtMapPanelProps {
 }
 
 export default function CourtMapPanel({ courts, selectedCourt, onCourtSelect }: CourtMapPanelProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
     fixLeafletIcon();
+    setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
   const valid = courts.filter((c) => c.latitude != null && c.longitude != null);
+
+  if (!isMounted) {
+    return <div style={{ height: "100%", width: "100%", backgroundColor: "#f1f5f9" }} />;
+  }
 
   return (
     <MapContainer
@@ -109,6 +164,7 @@ export default function CourtMapPanel({ courts, selectedCourt, onCourtSelect }: 
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      <LocateControl />
       <FitBounds courts={valid} />
       <PanToSelected court={selectedCourt} />
 

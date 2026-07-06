@@ -16,6 +16,11 @@ public class ClubMapper {
                 .status(club.getStatus())
                 .openTime(club.getOpenTime())
                 .closeTime(club.getCloseTime())
+                .latitude(club.getLatitude())
+                .longitude(club.getLongitude())
+                .googleMapUrl(club.getGoogleMapUrl())
+                .rating(club.getRating())
+                .reviewsCount(club.getReviewsCount())
                 .build();
     }
 }

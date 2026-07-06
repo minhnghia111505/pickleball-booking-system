@@ -16,4 +16,9 @@ public class ClubResponse {
     private String status;
     private java.time.LocalTime openTime;
     private java.time.LocalTime closeTime;
+    private Double latitude;
+    private Double longitude;
+    private String googleMapUrl;
+    private Double rating;
+    private Integer reviewsCount;
 }

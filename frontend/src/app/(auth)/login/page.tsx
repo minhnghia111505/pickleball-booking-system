@@ -65,16 +65,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
-      {/* Left Panel - Image Background */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 border-r border-slate-200 dark:border-slate-800">
-        <div className="absolute inset-0 bg-black/50 z-10" />
-        <Image
-          src="https://images.unsplash.com/photo-1622227922682-55c3c0b11267?q=80&w=2070&auto=format&fit=crop"
-          alt="Pickleball Court"
-          fill
-          className="object-cover mix-blend-overlay"
-          priority
-        />
+      {/* Left Panel - Premium Gradient Background */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 border-r border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 z-0" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 z-0" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 z-0" />
         <div className="relative z-20 flex flex-col justify-end p-12 text-white h-full pb-24">
           <h1 className="text-4xl font-bold mb-4 leading-tight">Kết nối đam mê,<br/>Nâng tầm sức khỏe.</h1>
           <p className="text-lg text-slate-300 max-w-md">

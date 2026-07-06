@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
 import { clubService } from "@/services/club.service";
-import { Star, MapPin, Coffee, Car, Heart } from "lucide-react";
+import { Star, MapPin, Coffee, Car, Heart, Navigation } from "lucide-react";
 import { useFavoritesStore } from "@/stores/favorites.store";
 
 export default function CourtsPage() {
@@ -182,7 +182,7 @@ export default function CourtsPage() {
                   </div>
                   <div className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm flex items-center gap-1">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                    4.8 (120)
+                    {court.rating ? `${court.rating} (${court.reviewsCount || 0})` : "Chưa đánh giá"}
                   </div>
                 </div>
 
@@ -196,6 +196,12 @@ export default function CourtsPage() {
                   </p>
 
                   <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                    {court.googleMapUrl && (
+                      <a href={court.googleMapUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 px-2 py-1 rounded-full transition-colors" onClick={(e) => e.stopPropagation()}>
+                        <Navigation className="h-3 w-3" />
+                        Xem bản đồ
+                      </a>
+                    )}
                     <div className="flex items-center gap-1 text-xs" title="Bãi đỗ xe">
                       <Car className="h-4 w-4" />
                     </div>

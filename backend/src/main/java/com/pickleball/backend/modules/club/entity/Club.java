@@ -37,6 +37,15 @@ public class Club {
     @Column
     private Double longitude;
 
+    @Column(name = "google_map_url", length = 1000)
+    private String googleMapUrl;
+
+    @Column
+    private Double rating;
+
+    @Column(name = "reviews_count")
+    private Integer reviewsCount;
+
     @Column(name = "opening_time")
     private java.time.LocalTime openTime;
 

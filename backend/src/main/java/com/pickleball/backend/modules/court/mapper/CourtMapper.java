@@ -25,6 +25,7 @@ public class CourtMapper {
     }
 
     public CourtResponse toResponse(Court court) {
+        com.pickleball.backend.modules.club.entity.Club club = court.getClub();
         return CourtResponse.builder()
                 .id(court.getId())
                 .name(court.getName())
@@ -33,10 +34,13 @@ public class CourtMapper {
                 .pricePerHour(court.getPricePerHour())
                 .status(court.getStatus())
                 .imageUrl(court.getImageUrl())
-                .clubId(court.getClub() != null ? court.getClub().getId() : null)
-                .clubName(court.getClub() != null ? court.getClub().getName() : null)
-                .latitude(court.getClub() != null ? court.getClub().getLatitude() : null)
-                .longitude(court.getClub() != null ? court.getClub().getLongitude() : null)
+                .clubId(club != null ? club.getId() : null)
+                .clubName(club != null ? club.getName() : null)
+                .latitude(club != null ? club.getLatitude() : null)
+                .longitude(club != null ? club.getLongitude() : null)
+                .rating(club != null ? club.getRating() : null)
+                .reviewsCount(club != null ? club.getReviewsCount() : null)
+                .googleMapUrl(club != null ? club.getGoogleMapUrl() : null)
                 .createdAt(court.getCreatedAt())
                 .updatedAt(court.getUpdatedAt())
                 .build();

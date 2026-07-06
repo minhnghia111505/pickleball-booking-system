@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 
 const fixLeafletIcon = () => {
@@ -47,12 +47,21 @@ const customIcon = L.divIcon({
 });
 
 export default function MiniMap({ lat, lng }: { lat: number; lng: number }) {
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
     fixLeafletIcon();
+    setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
+
+  if (!isMounted) {
+    return <div style={{ height: "100%", width: "100%", backgroundColor: "#f1f5f9" }} />;
+  }
 
   return (
     <MapContainer
+      key={`${lat}-${lng}`}
       center={[lat, lng]}
       zoom={15}
       style={{ height: "100%", width: "100%" }}

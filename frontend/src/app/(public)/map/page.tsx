@@ -17,6 +17,7 @@ import {
   X,
   Clock,
   Activity,
+  Navigation,
 } from "lucide-react";
 import type { CourtMapPoint } from "@/components/court/CourtMap";
 
@@ -53,6 +54,9 @@ export default function MapPage() {
     latitude: (c as any).latitude,
     longitude: (c as any).longitude,
     status: String(c.status),
+    rating: (c as any).rating,
+    reviewsCount: (c as any).reviewsCount,
+    googleMapUrl: (c as any).googleMapUrl,
   }));
 
   const filteredCourts = allCourts.filter(
@@ -145,13 +149,12 @@ export default function MapPage() {
                 <h2 className="text-lg font-bold text-slate-900 leading-snug">
                   {selectedCourt.name}
                 </h2>
-                {/* Mock rating */}
+                {/* Real rating */}
                 <div className="mt-1.5 flex items-center gap-1">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  ))}
-                  <Star className="h-4 w-4 fill-yellow-200 text-yellow-400" />
-                  <span className="ml-1 text-sm text-slate-500">4.8 (120 đánh giá)</span>
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="ml-1 text-sm text-slate-500 font-medium">
+                    {selectedCourt.rating ? `${selectedCourt.rating} (${selectedCourt.reviewsCount || 0} đánh giá)` : "Chưa có đánh giá"}
+                  </span>
                 </div>
               </div>
 
@@ -187,6 +190,17 @@ export default function MapPage() {
                   Xem chi tiết & Đặt sân
                   <ExternalLink className="h-4 w-4" />
                 </Link>
+                {selectedCourt.googleMapUrl && (
+                  <a
+                    href={selectedCourt.googleMapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-600 hover:bg-blue-100 transition-colors"
+                  >
+                    <Navigation className="h-4 w-4" />
+                    Chỉ đường (Google Maps)
+                  </a>
+                )}
                 <button
                   onClick={() => toggleFavorite(selectedCourt as any)}
                   className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition-colors ${
