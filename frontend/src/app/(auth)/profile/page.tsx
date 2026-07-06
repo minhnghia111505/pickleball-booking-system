@@ -43,14 +43,14 @@ export default function ProfilePage() {
       setIsSubmitting(true);
       const updated = await userService.updateProfile({
         fullName: profileData.fullName,
-        phoneNumber: profileData.phoneNumber,
+        phone: profileData.phoneNumber,
       });
       toast.success("Cập nhật thông tin thành công");
       // Update local store
       updateUser({
         ...user!,
         fullName: updated.fullName,
-        phone: updated.phoneNumber,
+        phone: updated.phone,
       });
     } catch (error: any) {
       toast.error(error?.message || "Có lỗi xảy ra");

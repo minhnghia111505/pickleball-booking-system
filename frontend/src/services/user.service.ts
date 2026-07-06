@@ -4,7 +4,7 @@ export interface UserProfile {
   id: number;
   email: string;
   fullName: string;
-  phoneNumber?: string;
+  phone?: string;
   avatarUrl?: string;
   role: string;
 }
@@ -15,7 +15,7 @@ export const userService = {
     return res.data;
   },
 
-  updateProfile: async (data: { fullName: string; phoneNumber?: string; avatarUrl?: string }) => {
+  updateProfile: async (data: { fullName: string; phone?: string }) => {
     const res = await apiClient.put<{ data: UserProfile }>("/users/profile", data) as unknown as { data: UserProfile };
     return res.data;
   },
