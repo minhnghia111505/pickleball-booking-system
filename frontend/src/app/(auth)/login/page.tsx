@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import { apiClient } from "@/lib/axios";
 import { useAuthStore, type User } from "@/stores/auth.store";
+import { useFavoritesStore } from "@/stores/favorites.store";
 import { Button } from "@/components/ui/button";
 import { getRoleHomePath, ROUTES } from "@/constants/routes";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const syncFavorites = useFavoritesStore((state) => state.syncFavorites);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -49,6 +51,7 @@ export default function LoginPage() {
       };
       
       setAuth(token, user);
+      await syncFavorites();
       toast.success("Đăng nhập thành công!");
       router.push(getRoleHomePath(user.role));
     } catch (error: unknown) {

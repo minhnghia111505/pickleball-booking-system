@@ -142,6 +142,17 @@ CREATE TABLE IF NOT EXISTS booking_services (
     CONSTRAINT fk_bs_service FOREIGN KEY (service_id) REFERENCES services (id) ON DELETE CASCADE
 );
 
+-- 8. USER_FAVORITES (Sân yêu thích của khách hàng)
+CREATE TABLE IF NOT EXISTS user_favorites (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id     BIGINT      NOT NULL,
+    court_id    BIGINT      NOT NULL,
+    created_at  DATETIME(6) NOT NULL,
+    CONSTRAINT fk_favorites_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_favorites_court FOREIGN KEY (court_id) REFERENCES courts (id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_court (user_id, court_id)
+);
+
 -- =========================================================================
 -- MOCK DATA (Chèn dữ liệu mẫu để thuận tiện việc test)
 -- Mật khẩu mặc định là mã hóa BCrypt của '123456' ($2a$10$HlL.1HY2vj1vQLtGTu4gyuSMovUExOjZhiLJAC2wLPKaoF5lTU7yi)

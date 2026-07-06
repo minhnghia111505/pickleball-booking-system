@@ -144,17 +144,19 @@ export default function CourtsPage() {
             {data?.content.map((court) => (
               <Card key={court.id} className="overflow-hidden flex flex-col transition-all hover:border-primary/50 hover:shadow-md">
                 <div className="aspect-video w-full overflow-hidden bg-muted relative group">
-                  {court.imageUrl ? (
-                    <img
-                      src={court.imageUrl}
-                      alt={court.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-secondary text-secondary-foreground">
-                      Không có ảnh
-                    </div>
-                  )}
+                  <Link href={`${ROUTES.COURTS}/${court.id}`} className="block h-full w-full">
+                    {court.imageUrl ? (
+                      <img
+                        src={court.imageUrl}
+                        alt={court.name}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-secondary text-secondary-foreground">
+                        Không có ảnh
+                      </div>
+                    )}
+                  </Link>
                   <div className="absolute top-2 right-2 flex items-center gap-2">
                     <button
                       onClick={(e) => {
@@ -188,7 +190,9 @@ export default function CourtsPage() {
 
                 <CardContent className="flex-1 p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-semibold line-clamp-1 flex-1">{court.name}</h3>
+                    <Link href={`${ROUTES.COURTS}/${court.id}`} className="hover:underline flex-1">
+                      <h3 className="text-lg font-semibold line-clamp-1 text-slate-900 dark:text-white">{court.name}</h3>
+                    </Link>
                   </div>
 
                   <p className="text-xs text-muted-foreground flex items-center gap-1 mb-3 line-clamp-1">

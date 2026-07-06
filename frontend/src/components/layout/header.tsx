@@ -6,6 +6,7 @@ import { ROUTES } from "@/constants/routes";
 import { MainContainer } from "@/components/layout/main-container";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/stores/auth.store";
+import { useFavoritesStore } from "@/stores/favorites.store";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ export function Header() {
 
   const handleLogout = () => {
     logout();
+    useFavoritesStore.getState().clearFavorites();
     toast.success("Đăng xuất thành công");
     router.push(ROUTES.HOME);
   };
@@ -70,15 +72,15 @@ export function Header() {
                 <Activity className="h-4 w-4" />
                 Sân
               </Link>
+              <Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <Heart className="h-4 w-4" />
+                Yêu thích
+              </Link>
               {isAuthenticated && (
                 <>
                   <Link href={ROUTES.BOOKINGS} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
                     <Calendar className="h-4 w-4" />
                     Lịch sử đặt sân
-                  </Link>
-                  <Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
-                    <Heart className="h-4 w-4" />
-                    Yêu thích
                   </Link>
                 </>
               )}
