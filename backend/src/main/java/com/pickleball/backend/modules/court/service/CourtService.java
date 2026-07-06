@@ -7,7 +7,13 @@ import com.pickleball.backend.response.PageResponse;
 
 public interface CourtService {
 
-    PageResponse<CourtResponse> getCourts(Long clubId, String search, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, int page, Integer size, String sort);
+    PageResponse<CourtResponse> getCourts(
+            Long clubId, String search, 
+            java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, 
+            java.time.LocalDate date, java.time.LocalTime startTime, java.time.LocalTime endTime,
+            Double userLat, Double userLng, Double radiusInKm,
+            String province, String district,
+            int page, Integer size, String sort);
 
     CourtResponse getCourtById(Long id);
 

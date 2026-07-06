@@ -34,8 +34,20 @@ export default function ProfilePage() {
         fullName: user.fullName || "",
         phoneNumber: user.phone || "",
       });
+      // Fetch fresh data from backend
+      userService.getProfile().then((data) => {
+        setProfileData({
+          fullName: data.fullName || "",
+          phoneNumber: data.phone || "",
+        });
+        updateUser({
+          ...user,
+          fullName: data.fullName,
+          phone: data.phone,
+        });
+      }).catch(console.error);
     }
-  }, [user]);
+  }, [user?.id]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();

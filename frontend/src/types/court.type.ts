@@ -8,6 +8,11 @@ export interface Court {
   imageUrl: string | null;
   clubId?: number;
   clubName?: string;
+  latitude?: number;
+  longitude?: number;
+  rating?: number;
+  reviewsCount?: number;
+  googleMapUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

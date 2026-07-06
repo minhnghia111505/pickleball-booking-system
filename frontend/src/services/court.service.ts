@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/axios";
 import { Court, PageResponse } from "@/types/court.type";
 
 export const courtService = {
-  getCourts: async (params?: { search?: string; clubId?: number; minPrice?: number; maxPrice?: number; sort?: string; page?: number; size?: number }) => {
+  getCourts: async (params?: { search?: string; clubId?: number; minPrice?: number; maxPrice?: number; date?: string; startTime?: string; endTime?: string; userLat?: number; userLng?: number; radiusInKm?: number; province?: string; district?: string; sort?: string; page?: number; size?: number }) => {
     const res = await apiClient.get<{ data: PageResponse<Court> }>("/courts", {
       params,
     }) as unknown as { data: PageResponse<Court> };

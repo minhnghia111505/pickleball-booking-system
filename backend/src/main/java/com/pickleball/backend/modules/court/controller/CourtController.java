@@ -38,11 +38,25 @@ public class CourtController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) java.math.BigDecimal minPrice,
             @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate date,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.TIME) java.time.LocalTime startTime,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.TIME) java.time.LocalTime endTime,
+            @RequestParam(required = false) Double userLat,
+            @RequestParam(required = false) Double userLng,
+            @RequestParam(required = false) Double radiusInKm,
+            @RequestParam(required = false) String province,
+            @RequestParam(required = false) String district,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String sort
     ) {
-        PageResponse<CourtResponse> courts = courtService.getCourts(clubId, search, minPrice, maxPrice, page, size, sort);
+        PageResponse<CourtResponse> courts = courtService.getCourts(
+                clubId, search, minPrice, maxPrice, 
+                date, startTime, endTime, 
+                userLat, userLng, radiusInKm, 
+                province, district,
+                page, size, sort
+        );
         return ResponseEntity.ok(ApiResponse.success("Courts retrieved successfully", courts));
     }
 

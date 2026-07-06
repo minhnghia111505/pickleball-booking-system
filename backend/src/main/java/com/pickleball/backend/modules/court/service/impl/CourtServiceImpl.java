@@ -41,7 +41,13 @@ public class CourtServiceImpl implements CourtService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<CourtResponse> getCourts(Long clubId, String search, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, int page, Integer size, String sortParam) {
+    public PageResponse<CourtResponse> getCourts(
+            Long clubId, String search, 
+            java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice, 
+            java.time.LocalDate date, java.time.LocalTime startTime, java.time.LocalTime endTime,
+            Double userLat, Double userLng, Double radiusInKm,
+            String province, String district,
+            int page, Integer size, String sortParam) {
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.ASC, "id");
         if (StringUtils.hasText(sortParam)) {
             String[] parts = sortParam.split(",");
@@ -52,11 +58,32 @@ public class CourtServiceImpl implements CourtService {
         }
         Pageable pageable = PageableUtils.createWithSort(page, size, sort, paginationProperties);
         
-        Page<Court> courtPage = courtRepository.findCourtsWithFilters(
+        Double minLat = null;
+        Double maxLat = null;
+        Double minLng = null;
+        Double maxLng = null;
+        
+        if (userLat != null && userLng != null && radiusInKm != null && radiusInKm > 0) {
+            // 1 degree latitude ~= 111 km
+            double latDelta = radiusInKm / 111.0;
+            minLat = userLat - latDelta;
+            maxLat = userLat + latDelta;
+            
+            // 1 degree longitude ~= 111 * cos(latitude) km
+            double lngDelta = radiusInKm / (111.0 * Math.cos(Math.toRadians(userLat)));
+            minLng = userLng - lngDelta;
+            maxLng = userLng + lngDelta;
+        }
+
+        Page<Court> courtPage = courtRepository.findCourtsWithAdvancedFilters(
                 clubId,
                 hasSearch(search) ? search.trim() : null,
                 minPrice,
                 maxPrice,
+                minLat, maxLat, minLng, maxLng,
+                date, startTime, endTime,
+                hasSearch(province) ? province.trim() : null,
+                hasSearch(district) ? district.trim() : null,
                 pageable
         );
 

@@ -7,7 +7,7 @@ import { MainContainer } from "@/components/layout/main-container";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFavoritesStore } from "@/stores/favorites.store";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,8 +33,14 @@ function getRoleDashboardLink(role: string): { href: string; label: string } | n
 export function Header() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const router = useRouter();
+  const pathname = usePathname();
   const isCustomerRole = !user?.role || user.role === "ROLE_USER";
   const dashboardLink = user ? getRoleDashboardLink(user.role) : null;
+
+  const isActive = (path: string) => {
+    if (path === ROUTES.HOME) return pathname === path;
+    return pathname.startsWith(path);
+  };
 
   const handleLogout = () => {
     logout();
@@ -60,25 +66,25 @@ export function Header() {
               className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex"
               aria-label="Main navigation"
             >
-              <Link href={ROUTES.HOME} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+              <Link href={ROUTES.HOME} className={cn("flex items-center gap-1.5 transition-colors px-3 py-2 rounded-md", isActive(ROUTES.HOME) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-slate-100")}>
                 <Home className="h-4 w-4" />
                 Trang chủ
               </Link>
-              <Link href={ROUTES.MAP} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+              <Link href={ROUTES.MAP} className={cn("flex items-center gap-1.5 transition-colors px-3 py-2 rounded-md", isActive(ROUTES.MAP) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-slate-100")}>
                 <Map className="h-4 w-4" />
                 Bản đồ
               </Link>
-              <Link href={ROUTES.COURTS} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+              <Link href={ROUTES.COURTS} className={cn("flex items-center gap-1.5 transition-colors px-3 py-2 rounded-md", isActive(ROUTES.COURTS) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-slate-100")}>
                 <Activity className="h-4 w-4" />
                 Sân
               </Link>
-              <Link href={ROUTES.FAVORITES} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+              <Link href={ROUTES.FAVORITES} className={cn("flex items-center gap-1.5 transition-colors px-3 py-2 rounded-md", isActive(ROUTES.FAVORITES) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-slate-100")}>
                 <Heart className="h-4 w-4" />
                 Yêu thích
               </Link>
               {isAuthenticated && (
                 <>
-                  <Link href={ROUTES.BOOKINGS} className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                  <Link href={ROUTES.BOOKINGS} className={cn("flex items-center gap-1.5 transition-colors px-3 py-2 rounded-md", isActive(ROUTES.BOOKINGS) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-slate-100")}>
                     <Calendar className="h-4 w-4" />
                     Lịch sử đặt sân
                   </Link>
